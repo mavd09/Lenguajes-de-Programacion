@@ -1,7 +1,132 @@
-/* esto no debe
-  importar, pero cuenta las lineas
-*/
+//declaración de variables globales, funciones y estructuras
+funcion_principal
+    //código que se ejecutará en el lenguaje
+fin_principal
+
+funcion_principal
+    booleano flag = verdadero;
+    caracter letter = 'x';
+    entero count = 7;
+    real mean = 3.5;
+    cadena name = "Lenguajes de programacion";
+    entero x,y=1,z=0;
+fin_principal
+
+funcion_principal
+    entero a;
+    leer( a );
+fin_principal
+
+funcion_principal
+    caracter letter = 'x';
+    entero cont = 7;
+    imprimir( "letra " , letter , " contador ", (cont * cont) );
+    imprimir( "total", cont * 2 + 1 );
+fin_principal
+
+funcion_principal
+    entero a= 3;
+    si ( a < 5 && a>0 ) entonces
+    imprimir(a);
+    fin_si
+fin_principal
+
+funcion_principal
+    entero a= 3;
+    si ( (a < 5) && (a>10) ) entonces
+    imprimir(a);
+    si_no
+    imprimir(a-1);
+    fin_si
+fin_principal
+
+funcion_principal
+    entero a = 3;
+    mientras ( a > 0 ) hacer
+    a = a - 1;
+    fin_mientras
+fin_principal
+
+funcion_principal
+    entero a = 3;
+    entero p = 2;
+    entero j = 2;
+    para ( entero i = 0 ; i < a ; 1 ) hacer
+        imprimir(i);
+    fin_para
+    para ( j = 0 ; i < a || j < 100 ; p ) hacer
+        imprimir(j);
+    fin_para
+fin_principal
+
+funcion_principal
+    entero a = 3;
+    hacer
+    a = a/2;
+    mientras( a > 0 );
+fin_principal
+
+funcion_principal
+    entero a = 3;
+    leer(a);
+    seleccionar ( a ) entre
+    caso 0 :
+        imprimir(a);
+        romper;
+    caso 1:
+        imprimir(a*2);
+        romper;
+    defecto:
+    fin_seleccionar
+fin_principal
+
+estructura C
+    entero a;
+fin_estructura
+
+estructura Point
+    entero x;
+    entero y;
+    real a,b,c;
+    C c;
+fin_estructura
+
+funcion_principal
+    Point p;
+    p.x = 5;
+    p.y = 10;
+    p.c.a = 5;
+fin_principal
+
 funcion entero sum(entero a, entero b) hacer
-    retornar a + Ñ;
-    // fin
+    retornar a + b;
 fin_funcion
+
+funcion_principal
+    imprimir (sum(3,5))
+fin_principal
+
+funcion_principal
+    // imprimir (sum(3,5))
+    /*
+    comentario de
+    varias líneas
+    */
+fin_principal
+
+
+funcion_principal
+    entero n;
+    booleano flag = falso;
+    leer( n );
+    para (entero i = 2 ; i < n ; 1 ) hacer
+        si ( n % i == 0 ) entonces
+            imprimir( "no es primo");
+            flag = verdadero;
+        fin_si
+    fin_para
+    si ( flag == falso ) entonces
+        imprimir("es primo");
+    si_no
+    fin_si
+fin_principal
