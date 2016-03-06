@@ -52,7 +52,7 @@ bool isLetter( char c ) { return ( 'a' <= c && c <= 'z' ) || ( 'A' <= c && c <= 
 bool isDigit( char c ) { return ( '0' <= c && c <= '9' ); }
 bool isWhiteSpace( char c ) { return ( c == '\n' || c == ' ' || c == '\t' ); }
 bool isSymbol( char c ) { return ( validSymbols.find( c ) != string::npos ); }
-bool isValidCharacter( char c ) { return ( isLetter( c ) || isDigit( c ) || isWhiteSpace( c ) /*|| isSymbol( c )/**/ || c == '_'/**/ ); }
+bool isValidCharacter( char c ) { return ( isLetter( c ) || isDigit( c ) || ( isWhiteSpace( c ) && c != '\n' ) || c == '_' ); }
 
 bool ignoreWhiteSpace( ) {
   bool flag = false;
@@ -90,7 +90,7 @@ bool ignoreComments( ) {
   return flag;
 }
 
-void ignoreAll( ) {
+void ignoreGarbage( ) {
   bool found;
   do {
     found = false;
@@ -133,26 +133,20 @@ Token nextToken( ) {
     }
   }
   else if( isSymbol( c ) ) {
-    if( c == '\'' && ( isLetter( program[ p ] ) || isDigit( program[ p ] ) ) &&
-        program[ p+1 ] == '\'' ) {
+    if( c == '\'' && isValidCharacter( program[ p ] ) && program[ p+1 ] == '\'' ) {
       curToken.addChar( program[ p ] );
       curToken.addChar( program[ p+1 ] );
       curToken.setTk( "tk_caracter" );
       col += 2; p += 2;
     }
-    else if( c == '"' ) { /// REVISAR!!!!!!!!!
+    else if( c == '"' ) {
       int i = p;
-      while( program[ i ] != 0 && program[ i ] != '"' && program[ i ] != '\n' ) { /// *
-        if( !isValidCharacter( program[ i ] ) ) break; /// *
+      while( program[ i ] != 0 && isValidCharacter( program[ i ] ) )
         i++;
-      }
       if( program[ i ] == '"' ) {
         while( program[ p ] != '"' ) {
           curToken.addChar( program[ p ] );
-          if( program[ p ] == '\n' )
-            row++, col = 1;
-          else col++;
-          p++;
+          p++; col++;
         }
         curToken.addChar( program[ p ] );
         curToken.setTk( "tk_cadena" );
@@ -191,12 +185,12 @@ Token nextToken( ) {
 void splitInput( ) {
   p = 0;
   row = col = 1;
-  ignoreAll( );
-  while( program[ p ] != 0 ) {
+  ignoreGarbage( );
+  while( program[ p ] != '\0' ) {
     Token nxtToken = nextToken( );
     if( !aborted ) tokens.PB( nxtToken );
     else break;
-    ignoreAll( );
+    ignoreGarbage( );
   }
 }
 
