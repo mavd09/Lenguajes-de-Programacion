@@ -1,5 +1,7 @@
 #include <bits/stdc++.h>
 
+#define PB      push_back
+
 using namespace std;
 
 struct Token {
@@ -50,22 +52,27 @@ bool isLetter( char c ) { return ( 'a' <= c && c <= 'z' ) || ( 'A' <= c && c <= 
 bool isDigit( char c ) { return ( '0' <= c && c <= '9' ); }
 bool isWhiteSpace( char c ) { return ( c == '\n' || c == ' ' || c == '\t' ); }
 bool isSymbol( char c ) { return ( validSymbols.find( c ) != string::npos ); }
-bool isValidCharacter( char c ) { return ( isLetter( c ) || isDigit( c ) || isWhiteSpace( c ) || isSymbol( c ) || c == '_' ); }
+bool isValidCharacter( char c ) { return ( isLetter( c ) || isDigit( c ) || isWhiteSpace( c ) /*|| isSymbol( c )/**/ || c == '_'/**/ ); }
 
-void ignoreWhiteSpace( ) {
+bool ignoreWhiteSpace( ) {
+  bool flag = false;
   while( isWhiteSpace( program[ p ] ) ) {
     if( program[ p ] == '\n' )
       row++, col = 1;
     else col++;
+    flag = true;
     p++;
   }
+  return flag;
 }
 
-void ignoreComments( ) {
+bool ignoreComments( ) {
+  bool flag = false;
   if( program[ p ] == '/' && program[ p+1 ] == '/' ) {
     while( program[ p ] != '\n' ) {
       p++; col++;
     }
+    flag = true;
   }
   else if( program[ p ] == '/' && program[ p+1 ] == '*' ) {
     col += 2;
@@ -78,13 +85,18 @@ void ignoreComments( ) {
     }
     if( program[ p ] != 0 )
       p += 2, col += 2;
+    flag = true;
   }
+  return flag;
 }
 
 void ignoreAll( ) {
-  ignoreWhiteSpace( );
-  ignoreComments( );
-  ignoreWhiteSpace( );
+  bool found;
+  do {
+    found = false;
+    found |= ignoreWhiteSpace( );
+    found |= ignoreComments( );
+  } while( found );
 }
 
 Token nextToken( ) {
@@ -102,7 +114,7 @@ Token nextToken( ) {
     if( !binary_search( reservedWords.begin( ), reservedWords.end( ), curToken.lx ) )
       curToken.setTk( "id" );
   }
-  else if( isDigit( c ) || c == '-' ) {
+  else if( isDigit( c ) /*|| c == '-'*/ ) {
     if( c == '-' && !isDigit( program[ p ] ) ) {
         curToken.setTk( tokenName[ curToken.lx ] );
         curToken.setLx( "" );
@@ -116,8 +128,8 @@ Token nextToken( ) {
         curToken.addChar( c );
         c = program[ p ];
       }
-      if( pnt ) curToken.setTk( "real" );
-      else curToken.setTk( "entero" );
+      if( pnt ) curToken.setTk( "tk_real" );
+      else curToken.setTk( "tk_entero" );
     }
   }
   else if( isSymbol( c ) ) {
@@ -130,7 +142,10 @@ Token nextToken( ) {
     }
     else if( c == '"' ) { /// REVISAR!!!!!!!!!
       int i = p;
-      while( program[ i ] != 0 && program[ i ] != '"' ) i++;
+      while( program[ i ] != 0 && program[ i ] != '"' && program[ i ] != '\n' ) { /// *
+        if( !isValidCharacter( program[ i ] ) ) break; /// *
+        i++;
+      }
       if( program[ i ] == '"' ) {
         while( program[ p ] != '"' ) {
           curToken.addChar( program[ p ] );
@@ -225,6 +240,6 @@ void initialize( ) {
                 { "<=", "tk_menor_igual" }, { ">=", "tk_mayor_igual" }, { "==", "tk_igual" }, { "&&", "tk_y" },
                 { "||", "tk_o" }, { "!=", "tk_dif" }, { "!", "tk_neg" }, { ":", "tk_dosp" },
                 { "'", "tk_comilla_sen" }, { "\"", "tk_comilla_dob" }, { ";", "tk_pyc" }, { ",", "tk_coma" },
-                { "(", "tk_par_izq" }, { ")", "tk_par_der" } };
-  validSymbols = "+-*/%=<>&|!:'\";,()";
+                { "(", "tk_par_izq" }, { ")", "tk_par_der" }, { ".", "tk_punto" } };
+  validSymbols = "+-*/%=<>&|!:'\";,().";
 }
