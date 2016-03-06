@@ -223,17 +223,24 @@ int main( ) {
 }
 
 void initialize( ) {
-  reservedWords = { "booleano", "caracter", "entero", "real", "cadena", "leer", "seleccionar",
-                    "imprimir", "si", "entonces", "fin_si", "si_no", "mientras", "verdadero",
-                    "hacer", "fin_mientras", "para", "fin_para", "entre", "caso", "falso",
-                    "romper", "defecto", "fin_seleccionar", "estructura", "fin_estructura",
-                    "retornar", "fin_funcion", "funcion_principal", "fin_principal", "funcion" };
+
+  reservedWords.PB("booleano"); reservedWords.PB("caracter"); reservedWords.PB("entero"); reservedWords.PB("real"); reservedWords.PB("cadena");
+  reservedWords.PB("leer"); reservedWords.PB("seleccionar"); reservedWords.PB("imprimir"); reservedWords.PB("si"); reservedWords.PB("entonces");
+  reservedWords.PB("fin_si"); reservedWords.PB("si_no"); reservedWords.PB("mientras"); reservedWords.PB("verdadero"); reservedWords.PB("hacer");
+  reservedWords.PB("fin_mientras"); reservedWords.PB("para"); reservedWords.PB("fin_para"); reservedWords.PB("entre"); reservedWords.PB("caso");
+  reservedWords.PB("falso"); reservedWords.PB("romper"); reservedWords.PB("defecto"); reservedWords.PB("fin_seleccionar"); reservedWords.PB("estructura");
+  reservedWords.PB("fin_estructura"); reservedWords.PB("retornar"); reservedWords.PB("fin_funcion"); reservedWords.PB("funcion_principal"); reservedWords.PB("funcion");
+  reservedWords.PB("fin_principal");
+
   sort( reservedWords.begin( ), reservedWords.end( ) );
-  tokenName = { { "+", "tk_mas" }, { "-", "tk_menos" }, { "*", "tk_mult" }, { "/", "tk_div" },
-                { "%", "tk_mod" }, { "=", "tk_asig" }, { "<", "tk_menor" }, { ">", "tk_mayor" },
-                { "<=", "tk_menor_igual" }, { ">=", "tk_mayor_igual" }, { "==", "tk_igual" }, { "&&", "tk_y" },
-                { "||", "tk_o" }, { "!=", "tk_dif" }, { "!", "tk_neg" }, { ":", "tk_dosp" },
-                { "'", "tk_comilla_sen" }, { "\"", "tk_comilla_dob" }, { ";", "tk_pyc" }, { ",", "tk_coma" },
-                { "(", "tk_par_izq" }, { ")", "tk_par_der" }, { ".", "tk_punto" } };
+
+  tokenName["+"] = "tk_mas"; tokenName["-"] = "tk_menos"; tokenName["*"] = "tk_mult"; tokenName["/"] = "tk_div";
+  tokenName["%"] = "tk_mod"; tokenName["="] = "tk_asig"; tokenName["<"] = "tk_menor"; tokenName[">"] = "tk_mayor";
+  tokenName["<="] = "tk_menor_igual"; tokenName["||"] = "tk_o"; tokenName[">="] = "tk_mayor_igual"; tokenName["=="] = "tk_igual";
+  tokenName["&&"] = "tk_y"; tokenName["!="] = "tk_dif"; tokenName["!"] = "tk_neg"; tokenName[":"] = "tk_dosp";
+  tokenName["'"] = "tk_comilla_sen"; tokenName["\""] = "tk_comilla_dob"; tokenName[";"] = "tk_pyc"; tokenName["]"] = "tk_coma";
+  tokenName["("] = "tk_par_izq"; tokenName[")"] = "tk_par_der"; tokenName["."] = "tk_punto";
+
+
   validSymbols = "+-*/%=<>&|!:'\";,().";
 }
