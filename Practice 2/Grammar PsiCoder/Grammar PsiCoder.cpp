@@ -1,14 +1,14 @@
-/// parametros funcion
-PARAMETERS -> DATATYPE id END_VAR
-END_VAR  -> tk_coma DATATYPE id END_VAR
-END_VAR  -> epsilon
-///declaracion de funciones
-FUNCTION_DECLARATION -> funcion DATATYPE id tk_par_izq PARAMETERS tk_par_der hacer BLOCK_INSTRUCTIONS retornar EXPRESSION1 tk_pyc fin_funcion
 /// funcion principal
 MAIN_FUNCTION -> FUNCTIONS_ADT funcion_principal BLOCK_INSTRUCTIONS fin_principal FUNCTIONS_ADT
 FUNCTIONS_ADT -> FUNCTION_DECLARATION FUNCTIONS_ADT
 FUNCTIONS_ADT -> ADT FUNCTIONS_ADT
 FUNCTIONS_ADT -> epsilon
+/// parametros funcion
+PARAMETERS -> DATATYPE id END_PARAMETER
+END_PARAMETER  -> tk_coma DATATYPE id END_PARAMETER
+END_PARAMETER  -> epsilon
+///declaracion de funciones
+FUNCTION_DECLARATION -> funcion DATATYPE id tk_par_izq PARAMETERS tk_par_der hacer BLOCK_INSTRUCTIONS retornar EXPRESSION1 tk_pyc fin_funcion
 ///imprimir
 PRINT -> imprimir tk_par_izq EXPRESSION1 MORE tk_par_der tk_pyc
 MORE  -> tk_coma EXPRESSION1 MORE
@@ -60,9 +60,9 @@ ADT  -> estructura id VARIABLE_DECLARATION ADT* fin_estructura
 ADT* -> VARIABLE_DECLARATION ADT*
 ADT* -> epsilon
 /// creación variables
-VARIABLE_DECLARATION  -> DATATYPE VAR END_VAR
-END_VAR  -> tk_coma VAR END_VAR
-END_VAR -> tk_pyc
+VARIABLE_DECLARATION  -> DATATYPE VAR END_VAR_DECLARATION
+END_VAR_DECLARATION  -> tk_coma VAR END_VAR_DECLARATION
+END_VAR_DECLARATION -> tk_pyc
 VAR    -> id ASSIGN_VALUE
 ASSIGN_VALUE -> epsilon
 ASSIGN_VALUE -> tk_asig EXPRESSION1
