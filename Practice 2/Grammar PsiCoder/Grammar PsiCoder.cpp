@@ -2,10 +2,13 @@
 PARAMETERS -> DATATYPE id END_VAR
 END_VAR  -> tk_coma id END_VAR
 END_VAR  -> epsilon
-
 ///declaracion de funciones
-FUNCTION_DECLARATION -> funcion CONSTANT id tk_par_izq
-
+FUNCTION_DECLARATION -> funcion CONSTANT id tk_par_izq PARAMETERS tk_par_der hacer BLOCK_INSTRUCTIONS retornar EXPRESSION1 tk_pyc fin_funcion
+/// funcion principal
+MAIN_FUNCTION -> FUNCTIONS_ADT funcion_principal BLOCK_INSTRUCTIONS fin_principal FUNCTIONS_ADT
+FUNCTIONS_ADT -> FUNCTION_DECLARATION FUNCTIONS_ADT
+FUNCTIONS_ADT -> ADT FUNCTIONS_ADT
+FUNCTIONS_ADT -> epsilon
 ///imprimir
 PRINT -> imprimir tk_par_izq EXPRESSION1 MORE tk_par_der tk_pyc
 MORE  -> tk_coma EXPRESSION1 MORE
