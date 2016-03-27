@@ -1,3 +1,11 @@
+/// parametros funcion
+PARAMETERS -> DATATYPE id END_VAR
+END_VAR  -> tk_coma id END_VAR
+END_VAR  -> epsilon
+
+///declaracion de funciones
+FUNCTION_DECLARATION -> funcion CONSTANT id tk_par_izq
+
 ///imprimir
 PRINT -> imprimir tk_par_izq EXPRESSION1 MORE tk_par_der tk_pyc
 MORE  -> tk_coma EXPRESSION1 MORE
@@ -35,23 +43,31 @@ LOOP_FOR2 -> EXPRESSION1
 LOOP_FOR2 -> epsilion
 LOOP_FOR3 -> LOOP_FOR2
 /// Bloque
-
+BLOCK_INSTRUCTIONS -> PRINT BLOCK_INSTRUCTIONS
+BLOCK_INSTRUCTIONS -> READ BLOCK_INSTRUCTIONS
+BLOCK_INSTRUCTIONS -> VALUE_ASSIGNMENT BLOCK_INSTRUCTIONS
+BLOCK_INSTRUCTIONS -> CALL_FUNCTION BLOCK_INSTRUCTIONS
+BLOCK_INSTRUCTIONS -> IF_CONDITIONAL BLOCK_INSTRUCTIONS
+BLOCK_INSTRUCTIONS -> SWITCH_CASE BLOCK_INSTRUCTIONS
+BLOCK_INSTRUCTIONS -> LOOP_WHILE BLOCK_INSTRUCTIONS
+BLOCK_INSTRUCTIONS -> LOOP_FOR BLOCK_INSTRUCTIONS
+BLOCK_INSTRUCTIONS -> VARIABLE_DECLARATION BLOCK_INSTRUCTIONS
 /// Declaracion de TDA
-TDA  -> estructura id VARIABLE TDA* fin_estructura
-TDA* -> VARIABLE TDA*
-TDA* -> epsilion
+ADT  -> estructura id VARIABLE_DECLARATION ADT* fin_estructura
+ADT* -> VARIABLE_DECLARATION ADT*
+ADT* -> epsilion
 /// creación variables
-VARIABLE  -> DATATYPE B A
-VARIABLE  -> id id tk_pyc
-  A       -> tk_coma B A
-  A       -> tk_pyc
-  B       -> id C
-  C       -> epsilion
-  C       -> tk_asig EXPRESSION1
+VARIABLE_DECLARATION  -> DATATYPE VAR END_VAR
+END_VAR  -> tk_coma VAR END_VAR
+END_VAR -> tk_pyc
+VAR    -> id ASSIGN_VALUE
+ASSIGN_VALUE -> epsilion
+ASSIGN_VALUE -> tk_asig EXPRESSION1
 DATATYPE  -> entero
 DATATYPE  -> real
 DATATYPE  -> caracter
 DATATYPE  -> cadena
+DATATYPE  -> id
 /// expresion
 EXPRESSION1  -> TERM EXPRESSION1*
 EXPRESSION1* -> tk_y TERM EXPRESSION1*
@@ -89,5 +105,5 @@ TERM           -> tk_menos TERM
 TERM           -> tk_mas TERM
 TERM           -> tk_neg TERM
 ///constantes
-CONSTANT -> tk_entero | tk_real | tk_caracter | tk_cadena:
+CONSTANT -> tk_entero | tk_real | tk_caracter | tk_cadena
 /**/
