@@ -1,3 +1,9 @@
+/**
+  * Integrantes:
+  *   Osman David Jiménez Gutiérrez
+  *   Manuel Alejandro Vergara Díaz
+  **/
+
 #include <bits/stdc++.h>
 
 #define PB      push_back
@@ -34,7 +40,7 @@ struct Error {
   Error( int r, int c ) : r( r ), c( c ) { }
   void printError( ) {
     if( r )
-      cout << ">>> Error lexico (linea: " << r << ", posicion: " << c << ")\n";
+      cout << ">>> Error lexico(linea: " << r << ", posicion: " << c << ")\n";
   }
 };
 
@@ -50,7 +56,7 @@ string validSymbols;
 void initialize( );
 bool isLetter( char c ) { return ( 'a' <= c && c <= 'z' ) || ( 'A' <= c && c <= 'Z' ); }
 bool isDigit( char c ) { return ( '0' <= c && c <= '9' ); }
-bool isWhiteSpace( char c ) { return ( c == '\n' || c == ' ' || c == '\t' ); }
+bool isWhiteSpace( char c ) { return ( c == '\n' || c == ' ' || c == '\t' || c == '\r' ); }
 bool isSymbol( char c ) { return ( validSymbols.find( c ) != string::npos ); }
 bool isValidCharacter( char c ) { return ( isLetter( c ) || isDigit( c ) || ( isWhiteSpace( c ) && c != '\n' ) || c == '_' ); }
 
