@@ -1,0 +1,35 @@
+*FIRST
+A = { cinco, cuatro, epsilon, seis, tres }
+B = { cuatro, epsilon, seis }
+C = { cinco, epsilon }
+D = { epsilon, seis }
+S = { cinco, cuatro, seis, tres, uno }
+*FOLLOWS
+A = { tres, uno }
+B = { $, cinco, dos, seis, tres, uno }
+C = { $, dos, seis, tres, uno }
+D = { $, cuatro, dos, seis, tres, uno }
+S = { $, dos }
+*PREDICTIONS
+A -> B C D epsilon
+	{ cinco, cuatro, seis, tres, uno }
+A -> A tres epsilon
+	{ cinco, cuatro, seis, tres }
+A -> epsilon
+	{ tres, uno }
+B -> D cuatro C tres epsilon
+	{ cuatro, seis }
+B -> epsilon
+	{ $, cinco, dos, seis, tres, uno }
+C -> cinco D B epsilon
+	{ cinco }
+C -> epsilon
+	{ $, dos, seis, tres, uno }
+D -> seis epsilon
+	{ seis }
+D -> epsilon
+	{ $, cuatro, dos, seis, tres, uno }
+S -> A uno B C epsilon
+	{ cinco, cuatro, seis, tres, uno }
+S -> S dos epsilon
+	{ cinco, cuatro, seis, tres, uno }
