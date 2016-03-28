@@ -1,0 +1,25 @@
+match ( funcion_principal, funcion_principal ) =  true
+match ( seleccionar, seleccionar ) =  true
+match ( tk_par_izq, tk_par_izq ) =  true
+match ( id, id ) =  true
+match ( tk_par_der, tk_par_der ) =  true
+match ( entre, entre ) =  true
+match ( caso, caso ) =  true
+match ( tk_entero, tk_entero ) =  true
+match ( tk_dosp, tk_dosp ) =  true
+match ( imprimir, imprimir ) =  true
+match ( tk_par_izq, tk_par_izq ) =  true
+match ( id, id ) =  true
+match ( tk_par_der, tk_par_der ) =  true
+match ( tk_pyc, tk_pyc ) =  true
+match ( caso, caso ) =  true
+match ( tk_entero, tk_entero ) =  true
+match ( tk_dosp, tk_dosp ) =  true
+match ( imprimir, imprimir ) =  true
+match ( tk_par_izq, tk_par_izq ) =  true
+match ( id, id ) =  true
+match ( tk_mult, tk_mult ) =  true
+match ( tk_entero, tk_entero ) =  true
+match ( tk_par_der, tk_par_der ) =  true
+match ( tk_pyc, tk_pyc ) =  true
+Error BLOCK_INSTRUCTIONS 

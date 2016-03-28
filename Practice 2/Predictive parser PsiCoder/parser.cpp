@@ -57,10 +57,11 @@ vector< string > reservedWords;
 map< string, string > tokenName;
 string validSymbols;
 
-void initialize( );
+void A( );
 void ADT( );
 void ADT_( );
 void ASSIGN_VALUE( );
+void A_( );
 void BLOCK_INSTRUCTIONS( );
 void CALL_FUNCTION( );
 void CONSTANT( );
@@ -69,23 +70,22 @@ void END_PARAMETER( );
 void END_VAR_DECLARATION( );
 void EXPRESSION1( );
 void EXPRESSION1_( );
-void EXPRESSION2( );
 void EXPRESSION2_( );
-void EXPRESSION3( );
 void EXPRESSION3_( );
-void EXPRESSION4( );
 void EXPRESSION4_( );
-void EXPRESSION5( );
 void EXPRESSION5_( );
 void FUNCTIONS_ADT( );
 void FUNCTION_DECLARATION( );
 void ID( );
+void ID2( );
+void ID2_( );
 void ID_( );
 void IF_CONDITIONAL( );
 void IF_CONDITIONAL_( );
 void LOOP_DO_WHILE( );
 void LOOP_FOR( );
 void LOOP_FOR1( );
+void LOOP_FOR1_( );
 void LOOP_FOR2( );
 void LOOP_FOR3( );
 void LOOP_WHILE( );
@@ -93,6 +93,7 @@ void MAIN_FUNCTION( );
 void MORE( );
 void PARAMETERS( );
 void PARAMETERS_( );
+void PRIMITIVE_DATATYPE( );
 void PRINT( );
 void READ( );
 void SWITCH_CASE( );
@@ -101,6 +102,7 @@ void TERM( );
 void VALUE_ASSIGNMENT( );
 void VAR( );
 void VARIABLE_DECLARATION( );
+void initialize( );
 bool isLetter( char c ) { return ( 'a' <= c && c <= 'z' ) || ( 'A' <= c && c <= 'Z' ); }
 bool isDigit( char c ) { return ( '0' <= c && c <= '9' ); }
 bool isWhiteSpace( char c ) { return ( c == '\n' || c == ' ' || c == '\t' || c == '\r' ); }
@@ -267,26 +269,35 @@ void lexer( ) {
 
 string getNextToken( ) {
   if( !tokens.empty( ) ) {
-    token = tokens.front( );
+    Token curToken = tokens.front( );
     tokens.pop_front( );
+    if( curToken.tk != "" )
+      return curToken.tk;
+    return curToken.lx;
   }
-  else
-    token = TOKEN_EOF;
+  return TOKEN_EOF;
 }
 
 void match( string expectedToken ) {
-  if( token == expectedToken )
-    getNextToken( );
-  else {
-
+  cout << "match ( " << token << ", " << expectedToken << " ) = ";
+  if( token == expectedToken ) {
+    cout << " true\n";
+    token = getNextToken( );
+    return ;
   }
+  cout << " false\n";
+  cout << "Error match\n";
+  exit( 0 );
 }
 
 void parser( ) {
-  getNextToken( );
+  token = getNextToken( );
   MAIN_FUNCTION( );
   if( token != TOKEN_EOF ) {
-
+    cout << "->Error\n";
+  }
+  else {
+    cout << "El analisis sintactico ha finalizado exitosamente.\n";
   }
 }
 
@@ -324,91 +335,718 @@ void initialize( ) {
 
   validSymbols = "+-*/%=<>&|!:'\";,().";
 }
-
+void A( ) {
+	if( token == "cadena" || token == "caracter" || token == "entero" || token == "real" ) {
+		PRIMITIVE_DATATYPE( );
+		VARIABLE_DECLARATION( );
+		return ;
+	}
+	if( token == "id" ) {
+		match( "id" );
+		A_( );
+		return ;
+	}
+	cout << "Error A \n";
+	exit( 0 );
+}
 void ADT( ) {
-
+	if( token == "estructura" ) {
+		match( "estructura" );
+		match( "id" );
+		DATATYPE( );
+		VARIABLE_DECLARATION( );
+		ADT_( );
+		match( "fin_estructura" );
+		return ;
+	}
+	cout << "Error ADT \n";
+	exit( 0 );
 }
 void ADT_( ) {
+	if( token == "cadena" || token == "caracter" || token == "entero" || token == "id" || token == "real" ) {
+		DATATYPE( );
+		VARIABLE_DECLARATION( );
+		ADT_( );
+		return ;
+	}
+	if( token == "fin_estructura" ) {
+		return ;
+	}
+	cout << "Error ADT_ \n";
+	exit( 0 );
 }
 void ASSIGN_VALUE( ) {
+	if( token == "tk_coma" || token == "tk_pyc" ) {
+		return ;
+	}
+	if( token == "tk_asig" ) {
+		match( "tk_asig" );
+		EXPRESSION1( );
+		return ;
+	}
+	cout << "Error ASSIGN_VALUE \n";
+	exit( 0 );
+}
+void A_( ) {
+	if( token == "tk_punto" ) {
+		ID2( );
+		VALUE_ASSIGNMENT( );
+		return ;
+	}
+	if( token == "tk_asig" ) {
+		VALUE_ASSIGNMENT( );
+		return ;
+	}
+	if( token == "tk_par_izq" ) {
+		CALL_FUNCTION( );
+		return ;
+	}
+	if( token == "id" ) {
+		VARIABLE_DECLARATION( );
+		return ;
+	}
+	cout << "Error A_ \n";
+	exit( 0 );
 }
 void BLOCK_INSTRUCTIONS( ) {
+	if( token == "imprimir" ) {
+		PRINT( );
+		BLOCK_INSTRUCTIONS( );
+		return ;
+	}
+	if( token == "leer" ) {
+		READ( );
+		BLOCK_INSTRUCTIONS( );
+		return ;
+	}
+	if( token == "cadena" || token == "caracter" || token == "entero" || token == "id" || token == "real" ) {
+		A( );
+		BLOCK_INSTRUCTIONS( );
+		return ;
+	}
+	if( token == "si" ) {
+		IF_CONDITIONAL( );
+		BLOCK_INSTRUCTIONS( );
+		return ;
+	}
+	if( token == "seleccionar" ) {
+		SWITCH_CASE( );
+		BLOCK_INSTRUCTIONS( );
+		return ;
+	}
+	if( token == "mientras" ) {
+		LOOP_WHILE( );
+		BLOCK_INSTRUCTIONS( );
+		return ;
+	}
+	if( token == "para" ) {
+		LOOP_FOR( );
+		BLOCK_INSTRUCTIONS( );
+		return ;
+	}
+	if( token == "caso" || token == "fin_mientras" || token == "fin_para" || token == "fin_principal" || token == "fin_si" || token == "mientras" || token == "retornar" || token == "si_no" ) {
+		return ;
+	}
+	cout << "Error BLOCK_INSTRUCTIONS \n";
+	exit( 0 );
 }
 void CALL_FUNCTION( ) {
+	if( token == "tk_par_izq" ) {
+		match( "tk_par_izq" );
+		PARAMETERS( );
+		match( "tk_par_der" );
+		match( "tk_pyc" );
+		return ;
+	}
+	cout << "Error CALL_FUNCTION \n";
+	exit( 0 );
 }
 void CONSTANT( ) {
+	if( token == "tk_entero" ) {
+		match( "tk_entero" );
+		return ;
+	}
+	if( token == "tk_real" ) {
+		match( "tk_real" );
+		return ;
+	}
+	if( token == "tk_caracter" ) {
+		match( "tk_caracter" );
+		return ;
+	}
+	if( token == "tk_cadena" ) {
+		match( "tk_cadena" );
+		return ;
+	}
+	cout << "Error CONSTANT \n";
+	exit( 0 );
 }
 void DATATYPE( ) {
+	if( token == "cadena" || token == "caracter" || token == "entero" || token == "real" ) {
+		PRIMITIVE_DATATYPE( );
+		return ;
+	}
+	if( token == "id" ) {
+		match( "id" );
+		return ;
+	}
+	cout << "Error DATATYPE \n";
+	exit( 0 );
 }
 void END_PARAMETER( ) {
+	if( token == "tk_coma" ) {
+		match( "tk_coma" );
+		DATATYPE( );
+		match( "id" );
+		END_PARAMETER( );
+		return ;
+	}
+	if( token == "tk_par_der" ) {
+		return ;
+	}
+	cout << "Error END_PARAMETER \n";
+	exit( 0 );
 }
 void END_VAR_DECLARATION( ) {
+	if( token == "tk_coma" ) {
+		match( "tk_coma" );
+		VAR( );
+		END_VAR_DECLARATION( );
+		return ;
+	}
+	if( token == "tk_pyc" ) {
+		match( "tk_pyc" );
+		return ;
+	}
+	cout << "Error END_VAR_DECLARATION \n";
+	exit( 0 );
 }
 void EXPRESSION1( ) {
+	if( token == "falso" || token == "id" || token == "tk_cadena" || token == "tk_caracter" || token == "tk_entero" || token == "tk_mas" || token == "tk_menos" || token == "tk_neg" || token == "tk_par_izq" || token == "tk_real" || token == "verdadero" ) {
+		TERM( );
+		EXPRESSION1_( );
+		return ;
+	}
+	cout << "Error EXPRESSION1 \n";
+	exit( 0 );
 }
 void EXPRESSION1_( ) {
-}
-void EXPRESSION2( ) {
+	if( token == "tk_y" ) {
+		match( "tk_y" );
+		TERM( );
+		EXPRESSION1_( );
+		return ;
+	}
+	if( token == "tk_o" ) {
+		match( "tk_o" );
+		TERM( );
+		EXPRESSION1_( );
+		return ;
+	}
+	if( token == "tk_coma" || token == "tk_dif" || token == "tk_div" || token == "tk_dosp" || token == "tk_igual" || token == "tk_mas" || token == "tk_mayor" || token == "tk_mayor_igual" || token == "tk_menor" || token == "tk_menor_igual" || token == "tk_menos" || token == "tk_mod" || token == "tk_mult" || token == "tk_par_der" || token == "tk_pyc" ) {
+		EXPRESSION2_( );
+		return ;
+	}
+	cout << "Error EXPRESSION1_ \n";
+	exit( 0 );
 }
 void EXPRESSION2_( ) {
-}
-void EXPRESSION3( ) {
+	if( token == "tk_igual" ) {
+		match( "tk_igual" );
+		TERM( );
+		EXPRESSION1_( );
+		return ;
+	}
+	if( token == "tk_dif" ) {
+		match( "tk_dif" );
+		TERM( );
+		EXPRESSION1_( );
+		return ;
+	}
+	if( token == "tk_coma" || token == "tk_div" || token == "tk_dosp" || token == "tk_mas" || token == "tk_mayor" || token == "tk_mayor_igual" || token == "tk_menor" || token == "tk_menor_igual" || token == "tk_menos" || token == "tk_mod" || token == "tk_mult" || token == "tk_par_der" || token == "tk_pyc" ) {
+		EXPRESSION3_( );
+		return ;
+	}
+	cout << "Error EXPRESSION2_ \n";
+	exit( 0 );
 }
 void EXPRESSION3_( ) {
-}
-void EXPRESSION4( ) {
+	if( token == "tk_menor" ) {
+		match( "tk_menor" );
+		TERM( );
+		EXPRESSION1_( );
+		return ;
+	}
+	if( token == "tk_mayor" ) {
+		match( "tk_mayor" );
+		TERM( );
+		EXPRESSION1_( );
+		return ;
+	}
+	if( token == "tk_menor_igual" ) {
+		match( "tk_menor_igual" );
+		TERM( );
+		EXPRESSION1_( );
+		return ;
+	}
+	if( token == "tk_mayor_igual" ) {
+		match( "tk_mayor_igual" );
+		TERM( );
+		EXPRESSION1_( );
+		return ;
+	}
+	if( token == "tk_coma" || token == "tk_div" || token == "tk_dosp" || token == "tk_mas" || token == "tk_menos" || token == "tk_mod" || token == "tk_mult" || token == "tk_par_der" || token == "tk_pyc" ) {
+		EXPRESSION4_( );
+		return ;
+	}
+	cout << "Error EXPRESSION3_ \n";
+	exit( 0 );
 }
 void EXPRESSION4_( ) {
-}
-void EXPRESSION5( ) {
+	if( token == "tk_mas" ) {
+		match( "tk_mas" );
+		TERM( );
+		EXPRESSION1_( );
+		return ;
+	}
+	if( token == "tk_menos" ) {
+		match( "tk_menos" );
+		TERM( );
+		EXPRESSION1_( );
+		return ;
+	}
+	if( token == "tk_coma" || token == "tk_div" || token == "tk_dosp" || token == "tk_mod" || token == "tk_mult" || token == "tk_par_der" || token == "tk_pyc" ) {
+		EXPRESSION5_( );
+		return ;
+	}
+	cout << "Error EXPRESSION4_ \n";
+	exit( 0 );
 }
 void EXPRESSION5_( ) {
+	if( token == "tk_mult" ) {
+		match( "tk_mult" );
+		TERM( );
+		EXPRESSION1_( );
+		return ;
+	}
+	if( token == "tk_mod" ) {
+		match( "tk_mod" );
+		TERM( );
+		EXPRESSION1_( );
+		return ;
+	}
+	if( token == "tk_div" ) {
+		match( "tk_div" );
+		TERM( );
+		EXPRESSION1_( );
+		return ;
+	}
+	if( token == "tk_coma" || token == "tk_dosp" || token == "tk_par_der" || token == "tk_pyc" ) {
+		return ;
+	}
+	cout << "Error EXPRESSION5_ \n";
+	exit( 0 );
 }
 void FUNCTIONS_ADT( ) {
+	if( token == "funcion" ) {
+		FUNCTION_DECLARATION( );
+		FUNCTIONS_ADT( );
+		return ;
+	}
+	if( token == "estructura" ) {
+		ADT( );
+		FUNCTIONS_ADT( );
+		return ;
+	}
+	if( token == "$" || token == "funcion_principal" ) {
+		return ;
+	}
+	cout << "Error FUNCTIONS_ADT \n";
+	exit( 0 );
 }
 void FUNCTION_DECLARATION( ) {
+	if( token == "funcion" ) {
+		match( "funcion" );
+		DATATYPE( );
+		match( "id" );
+		match( "tk_par_izq" );
+		PARAMETERS( );
+		match( "tk_par_der" );
+		match( "hacer" );
+		BLOCK_INSTRUCTIONS( );
+		match( "retornar" );
+		EXPRESSION1( );
+		match( "tk_pyc" );
+		match( "fin_funcion" );
+		return ;
+	}
+	cout << "Error FUNCTION_DECLARATION \n";
+	exit( 0 );
 }
 void ID( ) {
+	if( token == "id" ) {
+		match( "id" );
+		ID_( );
+		return ;
+	}
+	cout << "Error ID \n";
+	exit( 0 );
+}
+void ID2( ) {
+	if( token == "tk_punto" ) {
+		match( "tk_punto" );
+		match( "id" );
+		ID2_( );
+		return ;
+	}
+	cout << "Error ID2 \n";
+	exit( 0 );
+}
+void ID2_( ) {
+	if( token == "tk_punto" ) {
+		match( "tk_punto" );
+		match( "id" );
+		ID2_( );
+		return ;
+	}
+	if( token == "tk_asig" ) {
+		return ;
+	}
+	cout << "Error ID2_ \n";
+	exit( 0 );
 }
 void ID_( ) {
+	if( token == "tk_punto" ) {
+		match( "tk_punto" );
+		match( "id" );
+		ID_( );
+		return ;
+	}
+	if( token == "tk_coma" || token == "tk_dif" || token == "tk_div" || token == "tk_dosp" || token == "tk_igual" || token == "tk_mas" || token == "tk_mayor" || token == "tk_mayor_igual" || token == "tk_menor" || token == "tk_menor_igual" || token == "tk_menos" || token == "tk_mod" || token == "tk_mult" || token == "tk_o" || token == "tk_par_der" || token == "tk_pyc" || token == "tk_y" ) {
+		return ;
+	}
+	cout << "Error ID_ \n";
+	exit( 0 );
 }
 void IF_CONDITIONAL( ) {
+	if( token == "si" ) {
+		match( "si" );
+		match( "tk_par_izq" );
+		EXPRESSION1( );
+		match( "tk_par_der" );
+		match( "entonces" );
+		BLOCK_INSTRUCTIONS( );
+		IF_CONDITIONAL_( );
+		return ;
+	}
+	cout << "Error IF_CONDITIONAL \n";
+	exit( 0 );
 }
 void IF_CONDITIONAL_( ) {
+	if( token == "fin_si" ) {
+		match( "fin_si" );
+		return ;
+	}
+	if( token == "si_no" ) {
+		match( "si_no" );
+		BLOCK_INSTRUCTIONS( );
+		match( "fin_si" );
+		return ;
+	}
+	cout << "Error IF_CONDITIONAL_ \n";
+	exit( 0 );
 }
 void LOOP_DO_WHILE( ) {
+	if( token == "hacer" ) {
+		match( "hacer" );
+		BLOCK_INSTRUCTIONS( );
+		match( "mientras" );
+		match( "tk_par_izq" );
+		EXPRESSION1( );
+		match( "tk_par_der" );
+		match( "tk_pyc" );
+		return ;
+	}
+	cout << "Error LOOP_DO_WHILE \n";
+	exit( 0 );
 }
 void LOOP_FOR( ) {
+	if( token == "para" ) {
+		match( "para" );
+		match( "tk_par_izq" );
+		LOOP_FOR1( );
+		match( "tk_pyc" );
+		LOOP_FOR2( );
+		match( "tk_pyc" );
+		LOOP_FOR3( );
+		match( "tk_par_der" );
+		match( "hacer" );
+		BLOCK_INSTRUCTIONS( );
+		match( "fin_para" );
+		return ;
+	}
+	cout << "Error LOOP_FOR \n";
+	exit( 0 );
 }
 void LOOP_FOR1( ) {
+	if( token == "cadena" || token == "caracter" || token == "entero" || token == "real" ) {
+		PRIMITIVE_DATATYPE( );
+		match( "id" );
+		match( "tk_asig" );
+		EXPRESSION1( );
+		return ;
+	}
+	if( token == "id" ) {
+		match( "id" );
+		LOOP_FOR1_( );
+		return ;
+	}
+	cout << "Error LOOP_FOR1 \n";
+	exit( 0 );
+}
+void LOOP_FOR1_( ) {
+	if( token == "id" ) {
+		match( "id" );
+		match( "tk_asig" );
+		EXPRESSION1( );
+		return ;
+	}
+	if( token == "tk_asig" ) {
+		match( "tk_asig" );
+		EXPRESSION1( );
+		return ;
+	}
+	cout << "Error LOOP_FOR1_ \n";
+	exit( 0 );
 }
 void LOOP_FOR2( ) {
+	if( token == "falso" || token == "id" || token == "tk_cadena" || token == "tk_caracter" || token == "tk_entero" || token == "tk_mas" || token == "tk_menos" || token == "tk_neg" || token == "tk_par_izq" || token == "tk_real" || token == "verdadero" ) {
+		EXPRESSION1( );
+		return ;
+	}
+	if( token == "tk_par_der" || token == "tk_pyc" ) {
+		return ;
+	}
+	cout << "Error LOOP_FOR2 \n";
+	exit( 0 );
 }
 void LOOP_FOR3( ) {
+	if( token == "falso" || token == "id" || token == "tk_cadena" || token == "tk_caracter" || token == "tk_entero" || token == "tk_mas" || token == "tk_menos" || token == "tk_neg" || token == "tk_par_der" || token == "tk_par_izq" || token == "tk_real" || token == "verdadero" ) {
+		LOOP_FOR2( );
+		return ;
+	}
+	cout << "Error LOOP_FOR3 \n";
+	exit( 0 );
 }
 void LOOP_WHILE( ) {
+	if( token == "mientras" ) {
+		match( "mientras" );
+		match( "tk_par_izq" );
+		EXPRESSION1( );
+		match( "tk_par_der" );
+		match( "hacer" );
+		BLOCK_INSTRUCTIONS( );
+		match( "fin_mientras" );
+		return ;
+	}
+	cout << "Error LOOP_WHILE \n";
+	exit( 0 );
 }
 void MAIN_FUNCTION( ) {
+	if( token == "estructura" || token == "funcion" || token == "funcion_principal" ) {
+		FUNCTIONS_ADT( );
+		match( "funcion_principal" );
+		BLOCK_INSTRUCTIONS( );
+		match( "fin_principal" );
+		FUNCTIONS_ADT( );
+		return ;
+	}
+	cout << "Error MAIN_FUNCTION \n";
+	exit( 0 );
 }
 void MORE( ) {
+	if( token == "tk_coma" ) {
+		match( "tk_coma" );
+		EXPRESSION1( );
+		MORE( );
+		return ;
+	}
+	if( token == "tk_par_der" ) {
+		return ;
+	}
+	cout << "Error MORE \n";
+	exit( 0 );
 }
 void PARAMETERS( ) {
+	if( token == "cadena" || token == "caracter" || token == "entero" || token == "id" || token == "real" ) {
+		DATATYPE( );
+		match( "id" );
+		END_PARAMETER( );
+		return ;
+	}
+	if( token == "falso" || token == "id" || token == "tk_cadena" || token == "tk_caracter" || token == "tk_entero" || token == "tk_mas" || token == "tk_menos" || token == "tk_neg" || token == "tk_par_izq" || token == "tk_real" || token == "verdadero" ) {
+		EXPRESSION1( );
+		PARAMETERS_( );
+		return ;
+	}
+	if( token == "tk_par_der" ) {
+		return ;
+	}
+	cout << "Error PARAMETERS \n";
+	exit( 0 );
 }
 void PARAMETERS_( ) {
+	if( token == "tk_coma" ) {
+		match( "tk_coma" );
+		EXPRESSION1( );
+		PARAMETERS_( );
+		return ;
+	}
+	if( token == "tk_par_der" ) {
+		return ;
+	}
+	cout << "Error PARAMETERS_ \n";
+	exit( 0 );
+}
+void PRIMITIVE_DATATYPE( ) {
+	if( token == "entero" ) {
+		match( "entero" );
+		return ;
+	}
+	if( token == "real" ) {
+		match( "real" );
+		return ;
+	}
+	if( token == "caracter" ) {
+		match( "caracter" );
+		return ;
+	}
+	if( token == "cadena" ) {
+		match( "cadena" );
+		return ;
+	}
+	cout << "Error PRIMITIVE_DATATYPE \n";
+	exit( 0 );
 }
 void PRINT( ) {
+	if( token == "imprimir" ) {
+		match( "imprimir" );
+		match( "tk_par_izq" );
+		EXPRESSION1( );
+		MORE( );
+		match( "tk_par_der" );
+		match( "tk_pyc" );
+		return ;
+	}
+	cout << "Error PRINT \n";
+	exit( 0 );
 }
 void READ( ) {
+	if( token == "leer" ) {
+		match( "leer" );
+		match( "tk_par_izq" );
+		ID( );
+		match( "tk_par_der" );
+		match( "tk_pyc" );
+		return ;
+	}
+	cout << "Error READ \n";
+	exit( 0 );
 }
 void SWITCH_CASE( ) {
+	if( token == "seleccionar" ) {
+		match( "seleccionar" );
+		match( "tk_par_izq" );
+		ID( );
+		match( "tk_par_der" );
+		match( "entre" );
+		SWITCH_CASE_( );
+		match( "defecto" );
+		match( "tk_dosp" );
+		match( "fin_seleccionar" );
+		return ;
+	}
+	cout << "Error SWITCH_CASE \n";
+	exit( 0 );
 }
 void SWITCH_CASE_( ) {
+	if( token == "caso" ) {
+		match( "caso" );
+		EXPRESSION1( );
+		match( "tk_dosp" );
+		BLOCK_INSTRUCTIONS( );
+		SWITCH_CASE_( );
+		return ;
+	}
+	cout << "Error SWITCH_CASE_ \n";
+	exit( 0 );
 }
 void TERM( ) {
+	if( token == "tk_par_izq" ) {
+		match( "tk_par_izq" );
+		EXPRESSION1( );
+		match( "tk_par_der" );
+		return ;
+	}
+	if( token == "tk_cadena" || token == "tk_caracter" || token == "tk_entero" || token == "tk_real" ) {
+		CONSTANT( );
+		return ;
+	}
+	if( token == "id" ) {
+		ID( );
+		return ;
+	}
+	if( token == "verdadero" ) {
+		match( "verdadero" );
+		return ;
+	}
+	if( token == "falso" ) {
+		match( "falso" );
+		return ;
+	}
+	if( token == "tk_menos" ) {
+		match( "tk_menos" );
+		TERM( );
+		return ;
+	}
+	if( token == "tk_mas" ) {
+		match( "tk_mas" );
+		TERM( );
+		return ;
+	}
+	if( token == "tk_neg" ) {
+		match( "tk_neg" );
+		TERM( );
+		return ;
+	}
+	cout << "Error TERM \n";
+	exit( 0 );
 }
 void VALUE_ASSIGNMENT( ) {
+	if( token == "tk_asig" ) {
+		match( "tk_asig" );
+		EXPRESSION1( );
+		match( "tk_pyc" );
+		return ;
+	}
+	cout << "Error VALUE_ASSIGNMENT \n";
+	exit( 0 );
 }
 void VAR( ) {
+	if( token == "id" ) {
+		match( "id" );
+		ASSIGN_VALUE( );
+		return ;
+	}
+	cout << "Error VAR \n";
+	exit( 0 );
 }
 void VARIABLE_DECLARATION( ) {
+	if( token == "id" ) {
+		VAR( );
+		END_VAR_DECLARATION( );
+		return ;
+	}
+	cout << "Error VARIABLE_DECLARATION \n";
+	exit( 0 );
 }

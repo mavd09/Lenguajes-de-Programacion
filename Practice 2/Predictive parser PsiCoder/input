@@ -1,0 +1,10 @@
+funcion_principal
+  seleccionar ( a ) entre
+    caso 0 :
+      imprimir(a);
+    caso 1:
+      imprimir(a*2);
+      romper;
+    defecto:
+  fin_seleccionar
+fin_principal

@@ -160,11 +160,45 @@ void compute_predictions( ) {
   }
 }
 
+void generateFunctions( ) {
+  for( auto& non_terminal : non_terminals ) {
+    cout << "void " << non_terminal << "( ) {\n";
+    for( int i = 0; i < int( rules[ non_terminal ].size( ) ); i++ ) {
+      bool fst = true;
+      cout << "\tif(";
+      for( auto& p : predictions[ non_terminal ][ i ] ) {
+        if( !fst )
+          cout << " ||";
+        cout << " token == \"" << p << "\"";
+        fst = false;
+      }
+      cout << " ) {\n";
+      for( auto& s : rules[ non_terminal ][ i ] ) {
+        if( s == EPS )
+          continue;
+        if( terminals.count( s ) ) {
+          cout << "\t\tmatch( \"" << s << "\" );\n";
+        }
+        else {
+          cout << "\t\t" << s << "( );\n";
+        }
+      }
+      if( int( rules[ non_terminal ][ i ].size( ) ) == 1 && rules[ non_terminal ][ i ][ 0 ] == EPS ) {
+      }
+      cout << "\t\treturn ;\n";
+      cout << "\t}\n";
+    }
+    cout << "\tcout << \"Error " << non_terminal << " \\n\";\n";
+    cout << "\texit( 0 );\n";
+    cout << "}\n";
+  }
+}
+
 int main( ) {
 
   #ifdef LOCAL
     freopen( "Grammar PsiCoder.cpp", "r", stdin );
-    freopen( "ffp", "w", stdout );
+    freopen( "C:\\Users\\Alejandro\\Documents\\Universidad\\Lenguajes de Programaci\ón\\Practice 2\\Predictive parser PsiCoder\\parser.cpp", "w", stdout );
   #endif // LOCAL
 
   ios_base::sync_with_stdio( 0 );
@@ -178,7 +212,21 @@ int main( ) {
 
   //print_firsts( );
   //print_follows( );
-  print_predictions( );
+  //print_predictions( );
+
+  ifstream fin( "C:\\Users\\Alejandro\\Documents\\Universidad\\Lenguajes de Programaci\ón\\Practice 2\\Predictive parser PsiCoder\\template.cpp" );
+  string line;
+  for( int l = 1; getline( fin, line ); l++ ) {
+    if( l == 60 ) {
+      for( auto& non_terminal : non_terminals ) {
+        cout << "void " << non_terminal << "( );\n";
+      }
+    }
+    cout << line << "\n";
+  }
+  fin.close( );
+
+  generateFunctions( );
 
   return 0;
 }
