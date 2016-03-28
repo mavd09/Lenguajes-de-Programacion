@@ -1,35 +1,193 @@
-*FIRST
-A = { cinco, cuatro, epsilon, seis, tres }
-B = { cuatro, epsilon, seis }
-C = { cinco, epsilon }
-D = { epsilon, seis }
-S = { cinco, cuatro, seis, tres, uno }
-*FOLLOWS
-A = { tres, uno }
-B = { $, cinco, dos, seis, tres, uno }
-C = { $, dos, seis, tres, uno }
-D = { $, cuatro, dos, seis, tres, uno }
-S = { $, dos }
 *PREDICTIONS
-A -> B C D epsilon
-	{ cinco, cuatro, seis, tres, uno }
-A -> A tres epsilon
-	{ cinco, cuatro, seis, tres }
-A -> epsilon
-	{ tres, uno }
-B -> D cuatro C tres epsilon
-	{ cuatro, seis }
-B -> epsilon
-	{ $, cinco, dos, seis, tres, uno }
-C -> cinco D B epsilon
-	{ cinco }
-C -> epsilon
-	{ $, dos, seis, tres, uno }
-D -> seis epsilon
-	{ seis }
-D -> epsilon
-	{ $, cuatro, dos, seis, tres, uno }
-S -> A uno B C epsilon
-	{ cinco, cuatro, seis, tres, uno }
-S -> S dos epsilon
-	{ cinco, cuatro, seis, tres, uno }
+ADT -> estructura id VARIABLE_DECLARATION ADT_ fin_estructura epsilon
+	{ estructura }
+ADT_ -> VARIABLE_DECLARATION ADT_ epsilon
+	{ cadena, caracter, entero, id, real }
+ADT_ -> epsilon
+	{ fin_estructura }
+ASSIGN_VALUE -> epsilon
+	{ tk_coma, tk_pyc }
+ASSIGN_VALUE -> tk_asig EXPRESSION1 epsilon
+	{ tk_asig }
+BLOCK_INSTRUCTIONS -> PRINT BLOCK_INSTRUCTIONS epsilon
+	{ imprimir }
+BLOCK_INSTRUCTIONS -> READ BLOCK_INSTRUCTIONS epsilon
+	{ leer }
+BLOCK_INSTRUCTIONS -> VALUE_ASSIGNMENT BLOCK_INSTRUCTIONS epsilon
+	{ id }
+BLOCK_INSTRUCTIONS -> CALL_FUNCTION BLOCK_INSTRUCTIONS epsilon
+	{ id }
+BLOCK_INSTRUCTIONS -> IF_CONDITIONAL BLOCK_INSTRUCTIONS epsilon
+	{ si }
+BLOCK_INSTRUCTIONS -> SWITCH_CASE BLOCK_INSTRUCTIONS epsilon
+	{ seleccionar }
+BLOCK_INSTRUCTIONS -> LOOP_WHILE BLOCK_INSTRUCTIONS epsilon
+	{ mientras }
+BLOCK_INSTRUCTIONS -> LOOP_FOR BLOCK_INSTRUCTIONS epsilon
+	{ para }
+BLOCK_INSTRUCTIONS -> VARIABLE_DECLARATION BLOCK_INSTRUCTIONS epsilon
+	{ cadena, caracter, entero, id, real }
+CALL_FUNCTION -> ID tk_par_izq PARAMETERS tk_par_der tk_pyc epsilon
+	{ id }
+CONSTANT -> tk_entero epsilon
+	{ tk_entero }
+CONSTANT -> tk_real epsilon
+	{ tk_real }
+CONSTANT -> tk_caracter epsilon
+	{ tk_caracter }
+CONSTANT -> tk_cadena epsilon
+	{ tk_cadena }
+DATATYPE -> entero epsilon
+	{ entero }
+DATATYPE -> real epsilon
+	{ real }
+DATATYPE -> caracter epsilon
+	{ caracter }
+DATATYPE -> cadena epsilon
+	{ cadena }
+DATATYPE -> id epsilon
+	{ id }
+END_PARAMETER -> tk_coma DATATYPE id END_PARAMETER epsilon
+	{ tk_coma }
+END_PARAMETER -> epsilon
+	{ tk_par_der }
+END_VAR_DECLARATION -> tk_coma VAR END_VAR_DECLARATION epsilon
+	{ tk_coma }
+END_VAR_DECLARATION -> tk_pyc epsilon
+	{ tk_pyc }
+EXPRESSION1 -> TERM EXPRESSION1_ epsilon
+	{ falso, id, tk_cadena, tk_caracter, tk_entero, tk_mas, tk_menos, tk_neg, tk_par_izq, tk_real, verdadero }
+EXPRESSION1 -> EXPRESSION2 epsilon
+	{ falso, id, tk_cadena, tk_caracter, tk_entero, tk_mas, tk_menos, tk_neg, tk_par_izq, tk_real, verdadero }
+EXPRESSION1_ -> tk_y TERM EXPRESSION1_ epsilon
+	{ tk_y }
+EXPRESSION1_ -> tk_O TERM EXPRESSION1_ epsilon
+	{ tk_O }
+EXPRESSION1_ -> epsilon
+	{ tk_coma, tk_dosp, tk_par_der, tk_pyc }
+EXPRESSION2 -> TERM EXPRESSION2_ tk_igual TERM epsilon
+	{ falso, id, tk_cadena, tk_caracter, tk_entero, tk_mas, tk_menos, tk_neg, tk_par_izq, tk_real, verdadero }
+EXPRESSION2 -> EXPRESSION3 epsilon
+	{ falso, id, tk_cadena, tk_caracter, tk_entero, tk_mas, tk_menos, tk_neg, tk_par_izq, tk_real, verdadero }
+EXPRESSION2_ -> tk_igual TERM EXPRESSION2_ epsilon
+	{ tk_igual }
+EXPRESSION2_ -> tk_dif TERM EXPRESSION2_ epsilon
+	{ tk_dif }
+EXPRESSION2_ -> epsilon
+	{ tk_igual }
+EXPRESSION3 -> TERM EXPRESSION3_ epsilon
+	{ falso, id, tk_cadena, tk_caracter, tk_entero, tk_mas, tk_menos, tk_neg, tk_par_izq, tk_real, verdadero }
+EXPRESSION3 -> EXPRESSION4 epsilon
+	{ falso, id, tk_cadena, tk_caracter, tk_entero, tk_mas, tk_menos, tk_neg, tk_par_izq, tk_real, verdadero }
+EXPRESSION3_ -> tk_menor TERM EXPRESSION3_ epsilon
+	{ tk_menor }
+EXPRESSION3_ -> tk_mayor TERM EXPRESSION3_ epsilon
+	{ tk_mayor }
+EXPRESSION3_ -> tk_menor_igual TERM EXPRESSION3_ epsilon
+	{ tk_menor_igual }
+EXPRESSION3_ -> tk_mayor_igual TERM EXPRESSION3_ epsilon
+	{ tk_mayor_igual }
+EXPRESSION3_ -> epsilon
+	{ tk_coma, tk_dosp, tk_par_der, tk_pyc }
+EXPRESSION4 -> TERM EXPRESSION4_ epsilon
+	{ falso, id, tk_cadena, tk_caracter, tk_entero, tk_mas, tk_menos, tk_neg, tk_par_izq, tk_real, verdadero }
+EXPRESSION4 -> EXPRESSION5 epsilon
+	{ falso, id, tk_cadena, tk_caracter, tk_entero, tk_mas, tk_menos, tk_neg, tk_par_izq, tk_real, verdadero }
+EXPRESSION4_ -> tk_mas TERM EXPRESSION4_ epsilon
+	{ tk_mas }
+EXPRESSION4_ -> tk_menos TERM EXPRESSION4_ epsilon
+	{ tk_menos }
+EXPRESSION4_ -> epsilon
+	{ tk_coma, tk_dosp, tk_par_der, tk_pyc }
+EXPRESSION5 -> TERM EXPRESSION5_ epsilon
+	{ falso, id, tk_cadena, tk_caracter, tk_entero, tk_mas, tk_menos, tk_neg, tk_par_izq, tk_real, verdadero }
+EXPRESSION5_ -> tk_mult TERM EXPRESSION5_ epsilon
+	{ tk_mult }
+EXPRESSION5_ -> tk_mod TERM EXPRESSION5_ epsilon
+	{ tk_mod }
+EXPRESSION5_ -> tk_div TERM EXPRESSION5_ epsilon
+	{ tk_div }
+EXPRESSION5_ -> epsilon
+	{ tk_coma, tk_dosp, tk_par_der, tk_pyc }
+FUNCTIONS_ADT -> FUNCTION_DECLARATION FUNCTIONS_ADT epsilon
+	{ funcion }
+FUNCTIONS_ADT -> ADT FUNCTIONS_ADT epsilon
+	{ estructura }
+FUNCTIONS_ADT -> epsilon
+	{ $, funcion_principal }
+FUNCTION_DECLARATION -> funcion DATATYPE id tk_par_izq PARAMETERS tk_par_der hacer BLOCK_INSTRUCTIONS retornar EXPRESSION1 tk_pyc fin_funcion epsilon
+	{ funcion }
+ID -> id ID_ epsilon
+	{ id }
+ID_ -> tk_punto id ID_ epsilon
+	{ tk_punto }
+ID_ -> epsilon
+	{ tk_O, tk_asig, tk_coma, tk_dif, tk_div, tk_dosp, tk_igual, tk_mas, tk_mayor, tk_mayor_igual, tk_menor, tk_menor_igual, tk_menos, tk_mod, tk_mult, tk_par_der, tk_par_izq, tk_pyc, tk_y }
+IF_CONDITIONAL -> si tk_par_izq EXPRESSION1 tk_par_der entonces BLOCK_INSTRUCTIONS IF_CONDITIONAL_ epsilon
+	{ si }
+IF_CONDITIONAL_ -> fin_si epsilon
+	{ fin_si }
+IF_CONDITIONAL_ -> si_no BLOCK_INSTRUCTIONS fin_si epsilon
+	{ si_no }
+LOOP_DO_WHILE -> hacer BLOCK_INSTRUCTIONS mientras tk_par_izq EXPRESSION1 tk_par_der tk_pyc epsilon
+	{ hacer }
+LOOP_FOR -> para tk_par_izq LOOP_FOR1 tk_pyc LOOP_FOR2 tk_pyc LOOP_FOR3 tk_par_der hacer BLOCK_INSTRUCTIONS fin_para epsilon
+	{ para }
+LOOP_FOR1 -> DATATYPE id tk_asig EXPRESSION1 epsilon
+	{ cadena, caracter, entero, id, real }
+LOOP_FOR1 -> id tk_asig EXPRESSION1 epsilon
+	{ id }
+LOOP_FOR2 -> EXPRESSION1 epsilon
+	{ falso, id, tk_cadena, tk_caracter, tk_entero, tk_mas, tk_menos, tk_neg, tk_par_izq, tk_real, verdadero }
+LOOP_FOR2 -> epsilon
+	{ tk_par_der, tk_pyc }
+LOOP_FOR3 -> LOOP_FOR2 epsilon
+	{ falso, id, tk_cadena, tk_caracter, tk_entero, tk_mas, tk_menos, tk_neg, tk_par_der, tk_par_izq, tk_real, verdadero }
+LOOP_WHILE -> mientras tk_par_izq EXPRESSION1 tk_par_der hacer BLOCK_INSTRUCTIONS fin_mientras epsilon
+	{ mientras }
+MAIN_FUNCTION -> FUNCTIONS_ADT funcion_principal BLOCK_INSTRUCTIONS fin_principal FUNCTIONS_ADT epsilon
+	{ estructura, funcion, funcion_principal }
+MORE -> tk_coma EXPRESSION1 MORE epsilon
+	{ tk_coma }
+MORE -> epsilon
+	{ tk_par_der }
+PARAMETERS -> DATATYPE id END_PARAMETER epsilon
+	{ cadena, caracter, entero, id, real }
+PARAMETERS -> id PARAMETERS_ epsilon
+	{ id }
+PARAMETERS -> epsilon
+	{ tk_par_der }
+PARAMETERS_ -> tk_coma id PARAMETERS_ epsilon
+	{ tk_coma }
+PARAMETERS_ -> epsilon
+	{ tk_par_der }
+PRINT -> imprimir tk_par_izq EXPRESSION1 MORE tk_par_der tk_pyc epsilon
+	{ imprimir }
+READ -> leer tk_par_izq ID tk_par_der tk_pyc epsilon
+	{ leer }
+SWITCH_CASE -> seleccionar tk_par_izq ID tk_par_der entre SWITCH_CASE_ defecto tk_dosp fin_seleccionar epsilon
+	{ seleccionar }
+SWITCH_CASE_ -> caso EXPRESSION1 tk_dosp BLOCK_INSTRUCTIONS SWITCH_CASE_ epsilon
+	{ caso }
+TERM -> tk_par_izq EXPRESSION1 tk_par_der epsilon
+	{ tk_par_izq }
+TERM -> CONSTANT epsilon
+	{ tk_cadena, tk_caracter, tk_entero, tk_real }
+TERM -> ID epsilon
+	{ id }
+TERM -> verdadero epsilon
+	{ verdadero }
+TERM -> falso epsilon
+	{ falso }
+TERM -> tk_menos TERM epsilon
+	{ tk_menos }
+TERM -> tk_mas TERM epsilon
+	{ tk_mas }
+TERM -> tk_neg TERM epsilon
+	{ tk_neg }
+VALUE_ASSIGNMENT -> ID tk_asig EXPRESSION1 tk_pyc epsilon
+	{ id }
+VAR -> id ASSIGN_VALUE epsilon
+	{ id }
+VARIABLE_DECLARATION -> DATATYPE VAR END_VAR_DECLARATION epsilon
+	{ cadena, caracter, entero, id, real }

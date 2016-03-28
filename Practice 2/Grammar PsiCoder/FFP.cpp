@@ -163,7 +163,7 @@ void compute_predictions( ) {
 int main( ) {
 
   #ifdef LOCAL
-    freopen( "grammar", "r", stdin );
+    freopen( "Grammar PsiCoder.cpp", "r", stdin );
     freopen( "ffp", "w", stdout );
   #endif // LOCAL
 
@@ -176,8 +176,8 @@ int main( ) {
   compute_follows( );
   compute_predictions( );
 
-  print_firsts( );
-  print_follows( );
+  //print_firsts( );
+  //print_follows( );
   print_predictions( );
 
   return 0;
