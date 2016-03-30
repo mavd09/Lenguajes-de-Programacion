@@ -1,5 +1,6 @@
 /**
-  * Integrantes:
+  * LEXER FOR PsiCoder LANGUAGE
+  * @Authors:
   *   Osman David Jiménez Gutiérrez
   *   Manuel Alejandro Vergara Díaz
   **/
@@ -9,6 +10,8 @@
 #define PB      push_back
 
 using namespace std;
+
+const char CHAR_NULL = '\0';
 
 struct Token {
   string tk, lx;
@@ -83,13 +86,13 @@ bool ignoreComments( ) {
   else if( program[ p ] == '/' && program[ p+1 ] == '*' ) {
     col += 2;
     p += 2;
-    while( program[ p ] != 0 && !( program[ p ] == '*' && program[ p+1 ] == '/' ) ) {
+    while( program[ p ] != CHAR_NULL && !( program[ p ] == '*' && program[ p+1 ] == '/' ) ) {
       if( program[ p ] == '\n' )
         row++, col = 1;
       else col++;
       p++;
     }
-    if( program[ p ] != 0 )
+    if( program[ p ] != CHAR_NULL )
       p += 2, col += 2;
     flag = true;
   }
@@ -147,7 +150,7 @@ Token nextToken( ) {
     }
     else if( c == '"' ) {
       int i = p;
-      while( program[ i ] != 0 && isValidCharacter( program[ i ] ) )
+      while( program[ i ] != TOKEN_EOF && isValidCharacter( program[ i ] ) )
         i++;
       if( program[ i ] == '"' ) {
         while( program[ p ] != '"' ) {
@@ -192,7 +195,7 @@ void splitInput( ) {
   p = 0;
   row = col = 1;
   ignoreGarbage( );
-  while( program[ p ] != '\0' ) {
+  while( program[ p ] != CHAR_NULL ) {
     Token nxtToken = nextToken( );
     if( !aborted ) tokens.PB( nxtToken );
     else break;
@@ -206,6 +209,17 @@ void printTokens( ) {
   error.printError( );
 }
 
+void lexer( ) {
+  string line;
+  while( getline( cin, line ) ) {
+    program += ( line );
+    program += ( '\n' );
+  }
+  program += string( 5, CHAR_NULL );
+  splitInput( );
+  //printTokens( );
+}
+
 int main( ) {
 
   #ifdef LOCAL
@@ -215,15 +229,7 @@ int main( ) {
 
   initialize( );
 
-  string line;
-  while( getline( cin, line ) ) {
-    program += ( line );
-    program += ( '\n' );
-  }
-  program += "\0\0\0\0";
-
-  splitInput( );
-  printTokens( );
+  lexer( );
 
   return 0;
 }
@@ -237,7 +243,6 @@ void initialize( ) {
   reservedWords.PB("falso"); reservedWords.PB("romper"); reservedWords.PB("defecto"); reservedWords.PB("fin_seleccionar"); reservedWords.PB("estructura");
   reservedWords.PB("fin_estructura"); reservedWords.PB("retornar"); reservedWords.PB("fin_funcion"); reservedWords.PB("funcion_principal"); reservedWords.PB("funcion");
   reservedWords.PB("fin_principal");
-
   sort( reservedWords.begin( ), reservedWords.end( ) );
 
   tokenName["+"] = "tk_mas"; tokenName["-"] = "tk_menos"; tokenName["*"] = "tk_mult"; tokenName["/"] = "tk_div";
@@ -247,6 +252,6 @@ void initialize( ) {
   tokenName["'"] = "tk_comilla_sen"; tokenName["\""] = "tk_comilla_dob"; tokenName[";"] = "tk_pyc"; tokenName[","] = "tk_coma";
   tokenName["("] = "tk_par_izq"; tokenName[")"] = "tk_par_der"; tokenName["."] = "tk_punto";
 
-
   validSymbols = "+-*/%=<>&|!:'\";,().";
+
 }

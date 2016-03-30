@@ -247,7 +247,7 @@ void match( string expectedToken ) {
 
 void parser( ) {
   token = getNextToken( );
-  MAIN_FUNCTION( );
+  PROGRAMA( );
   if( token != TOKEN_EOF ) {
     cout << "->Error\n";
   }

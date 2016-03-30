@@ -1,10 +1,47 @@
-funcion_principal
-  seleccionar ( a ) entre
-    caso 0 :
-      imprimir(a);
-    caso 1:
-      imprimir(a*2);
-      romper;
+estructura punto
+  entero a;
+  punto b;
+fin_estructura
+
+funcion punto calcularalgo( ) hacer
+  si( a == -1 ) entonces retornar 5; fin_si
+  hacer
+    mientras( no_acabe ) hacer
+      hacer
+        hacer
+          hacer
+            para( punto j = 0; j < 5 || j > 10; 1*1%4-1 ) hacer
+              imprimir( calcularalgo( ), "asdasda" );
+            fin_para
+            mientras( hola > 0 ) hacer
+              hola = hola+1;
+            fin_mientras
+          mientras( 1 );
+          retornar 2;
+        mientras( 1 );
+      mientras( 1 );
+    fin_mientras
+    romper;
+  mientras( acabe );
+
+  seleccionar( a ) entre
     defecto:
   fin_seleccionar
+
+fin_funcion
+
+funcion_principal
+  entero a = 3;
+  hacer
+    mientras( a ) hacer
+      hacer
+        mientras( c > 0 ) hacer
+          mientras( z > 0 ) hacer
+            z = z*1<(1 <4);
+          fin_mientras
+        fin_mientras
+      mientras( b > 0 );
+    fin_mientras
+  mientras( a > 0 );
+  romper;
 fin_principal
