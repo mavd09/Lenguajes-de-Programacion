@@ -786,7 +786,7 @@ void COMPLEMENTO_BLOQUE_SELECCIONAR( ) {
 		BLOQUE_INSTRUCCIONES( );
 		return ;
 	}
-	if( ) {
+	if( token == "fin_seleccionar" ) {
 		return ;
 	}
 	cout << "Error COMPLEMENTO_BLOQUE_SELECCIONAR \n";
@@ -1460,7 +1460,7 @@ void SELECCIONAR( ) {
 		EXPRESION( );
 		match( "tk_par_der" );
 		match( "entre" );
-		BLOQUE_INSTRUCCIONES( );
+		BLOQUE_SELECCIONAR( );
 		match( "fin_seleccionar" );
 		return ;
 	}
