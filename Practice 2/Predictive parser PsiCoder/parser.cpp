@@ -413,7 +413,7 @@ void BLOQUE_INSTRUCCIONES( ) {
 		BLOQUE_INSTRUCCIONES( );
 		return ;
 	}
-	if( token == "cadena" || token == "caracter" || token == "entero" || token == "id" || token == "real" ) {
+	if( token == "booleano" || token == "cadena" || token == "caracter" || token == "entero" || token == "id" || token == "real" ) {
 		DECLARACION_O_ASIGNACION_O_LLAMADO( );
 		BLOQUE_INSTRUCCIONES( );
 		return ;
@@ -465,7 +465,7 @@ void BLOQUE_INSTRUCCIONES_FUNCION( ) {
 		BLOQUE_INSTRUCCIONES_FUNCION( );
 		return ;
 	}
-	if( token == "cadena" || token == "caracter" || token == "entero" || token == "id" || token == "real" ) {
+	if( token == "booleano" || token == "cadena" || token == "caracter" || token == "entero" || token == "id" || token == "real" ) {
 		DECLARACION_O_ASIGNACION_O_LLAMADO( );
 		BLOQUE_INSTRUCCIONES_FUNCION( );
 		return ;
@@ -512,7 +512,7 @@ void BLOQUE_INSTRUCCIONES_FUNCION( ) {
 	exit( 0 );
 }
 void BLOQUE_INSTRUCCIONES_HACER_MIENTRAS( ) {
-	if( token == "cadena" || token == "caracter" || token == "entero" || token == "hacer" || token == "id" || token == "imprimir" || token == "leer" || token == "para" || token == "real" || token == "romper" || token == "seleccionar" || token == "si" ) {
+	if( token == "booleano" || token == "cadena" || token == "caracter" || token == "entero" || token == "hacer" || token == "id" || token == "imprimir" || token == "leer" || token == "para" || token == "real" || token == "romper" || token == "seleccionar" || token == "si" ) {
 		COMPLEMENTO_BLOQUE_INSTRUCCIONES_HACER_MIENTRAS( );
 		BLOQUE_INSTRUCCIONES_HACER_MIENTRAS( );
 		return ;
@@ -529,7 +529,7 @@ void BLOQUE_INSTRUCCIONES_HACER_MIENTRAS( ) {
 	exit( 0 );
 }
 void BLOQUE_INSTRUCCIONES_HACER_MIENTRAS_FUNCION( ) {
-	if( token == "cadena" || token == "caracter" || token == "entero" || token == "hacer" || token == "id" || token == "imprimir" || token == "leer" || token == "para" || token == "real" || token == "retornar" || token == "romper" || token == "seleccionar" || token == "si" ) {
+	if( token == "booleano" || token == "cadena" || token == "caracter" || token == "entero" || token == "hacer" || token == "id" || token == "imprimir" || token == "leer" || token == "para" || token == "real" || token == "retornar" || token == "romper" || token == "seleccionar" || token == "si" ) {
 		COMPLEMENTO_BLOQUE_INSTRUCCIONES_HACER_MIENTRAS_FUNCION( );
 		BLOQUE_INSTRUCCIONES_HACER_MIENTRAS_FUNCION( );
 		return ;
@@ -646,7 +646,7 @@ void CICLO_PARA( ) {
 	exit( 0 );
 }
 void CICLO_PARA_1( ) {
-	if( token == "cadena" || token == "caracter" || token == "entero" || token == "real" ) {
+	if( token == "booleano" || token == "cadena" || token == "caracter" || token == "entero" || token == "real" ) {
 		TIPO_DATO_PRIMITIVO( );
 		match( "id" );
 		match( "tk_asig" );
@@ -680,7 +680,7 @@ void CICLO_PARA_FUNCION( ) {
 	exit( 0 );
 }
 void CICLO_PARA_FUNCION_1( ) {
-	if( token == "cadena" || token == "caracter" || token == "entero" || token == "real" ) {
+	if( token == "booleano" || token == "cadena" || token == "caracter" || token == "entero" || token == "real" ) {
 		TIPO_DATO_PRIMITIVO( );
 		match( "id" );
 		match( "tk_asig" );
@@ -704,7 +704,7 @@ void COMPLEMENTO_BLOQUE_INSTRUCCIONES_HACER_MIENTRAS( ) {
 		IMPRIMIR( );
 		return ;
 	}
-	if( token == "cadena" || token == "caracter" || token == "entero" || token == "id" || token == "real" ) {
+	if( token == "booleano" || token == "cadena" || token == "caracter" || token == "entero" || token == "id" || token == "real" ) {
 		DECLARACION_O_ASIGNACION_O_LLAMADO( );
 		return ;
 	}
@@ -740,7 +740,7 @@ void COMPLEMENTO_BLOQUE_INSTRUCCIONES_HACER_MIENTRAS_FUNCION( ) {
 		IMPRIMIR( );
 		return ;
 	}
-	if( token == "cadena" || token == "caracter" || token == "entero" || token == "id" || token == "real" ) {
+	if( token == "booleano" || token == "cadena" || token == "caracter" || token == "entero" || token == "id" || token == "real" ) {
 		DECLARACION_O_ASIGNACION_O_LLAMADO( );
 		return ;
 	}
@@ -872,7 +872,7 @@ void COMPLEMENTO_CONDICIONAL_SI_FUNCION( ) {
 	exit( 0 );
 }
 void COMPLEMENTO_DATOS_ESTRUCTURA( ) {
-	if( token == "cadena" || token == "caracter" || token == "entero" || token == "id" || token == "real" ) {
+	if( token == "booleano" || token == "cadena" || token == "caracter" || token == "entero" || token == "id" || token == "real" ) {
 		TIPO_DATO( );
 		DECLARACION_VARIABLE( );
 		match( "tk_pyc" );
@@ -1065,7 +1065,7 @@ void CONSTANTE( ) {
 	exit( 0 );
 }
 void DATOS_ESTRUCTURA( ) {
-	if( token == "cadena" || token == "caracter" || token == "entero" || token == "id" || token == "real" ) {
+	if( token == "booleano" || token == "cadena" || token == "caracter" || token == "entero" || token == "id" || token == "real" ) {
 		TIPO_DATO( );
 		DECLARACION_VARIABLE( );
 		match( "tk_pyc" );
@@ -1076,7 +1076,7 @@ void DATOS_ESTRUCTURA( ) {
 	exit( 0 );
 }
 void DECLARACIONES_GLOBALES( ) {
-	if( token == "cadena" || token == "caracter" || token == "entero" || token == "id" || token == "real" ) {
+	if( token == "booleano" || token == "cadena" || token == "caracter" || token == "entero" || token == "id" || token == "real" ) {
 		DECLARACION_VARIABLES_GLOBALES( );
 		DECLARACIONES_GLOBALES( );
 		return ;
@@ -1125,7 +1125,7 @@ void DECLARACION_FUNCION( ) {
 	exit( 0 );
 }
 void DECLARACION_O_ASIGNACION_O_LLAMADO( ) {
-	if( token == "cadena" || token == "caracter" || token == "entero" || token == "real" ) {
+	if( token == "booleano" || token == "cadena" || token == "caracter" || token == "entero" || token == "real" ) {
 		TIPO_DATO_PRIMITIVO( );
 		DECLARACION_VARIABLE( );
 		match( "tk_pyc" );
@@ -1150,7 +1150,7 @@ void DECLARACION_VARIABLE( ) {
 	exit( 0 );
 }
 void DECLARACION_VARIABLES_GLOBALES( ) {
-	if( token == "cadena" || token == "caracter" || token == "entero" || token == "id" || token == "real" ) {
+	if( token == "booleano" || token == "cadena" || token == "caracter" || token == "entero" || token == "id" || token == "real" ) {
 		TIPO_DATO( );
 		DECLARACION_VARIABLE( );
 		match( "tk_pyc" );
@@ -1391,7 +1391,7 @@ void MAS_PARAMETROS_LLAMADO_FUNCION( ) {
 	exit( 0 );
 }
 void PARAMETROS_FUNCION( ) {
-	if( token == "cadena" || token == "caracter" || token == "entero" || token == "id" || token == "real" ) {
+	if( token == "booleano" || token == "cadena" || token == "caracter" || token == "entero" || token == "id" || token == "real" ) {
 		TIPO_DATO( );
 		match( "id" );
 		MAS_PARAMETROS_FUNCION( );
@@ -1425,7 +1425,7 @@ void PARAMETROS_LLAMADO_FUNCION( ) {
 	exit( 0 );
 }
 void PROGRAMA( ) {
-	if( token == "cadena" || token == "caracter" || token == "entero" || token == "estructura" || token == "funcion" || token == "funcion_principal" || token == "id" || token == "real" ) {
+	if( token == "booleano" || token == "cadena" || token == "caracter" || token == "entero" || token == "estructura" || token == "funcion" || token == "funcion_principal" || token == "id" || token == "real" ) {
 		DECLARACIONES_GLOBALES( );
 		FUNCION_PRINCIPAL( );
 		DECLARACIONES_GLOBALES( );
@@ -1523,7 +1523,7 @@ void TERMINO( ) {
 	exit( 0 );
 }
 void TIPO_DATO( ) {
-	if( token == "cadena" || token == "caracter" || token == "entero" || token == "real" ) {
+	if( token == "booleano" || token == "cadena" || token == "caracter" || token == "entero" || token == "real" ) {
 		TIPO_DATO_PRIMITIVO( );
 		return ;
 	}
@@ -1549,6 +1549,10 @@ void TIPO_DATO_PRIMITIVO( ) {
 	}
 	if( token == "cadena" ) {
 		match( "cadena" );
+		return ;
+	}
+	if( token == "booleano" ) {
+		match( "booleano" );
 		return ;
 	}
 	cout << "Error TIPO_DATO_PRIMITIVO \n";

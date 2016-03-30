@@ -194,6 +194,19 @@ void generateFunctions( ) {
   }
 }
 
+string verify_predictions( ) {
+  for( auto& non_terminal : non_terminals ) {
+    set< string > all;
+    for( auto& v : predictions[ non_terminal ] ) {
+      for( auto& s : v ){
+        if( all.count( s ) ) return "bad";
+        all.insert( s );
+      }
+    }
+  }
+  return "good";
+}
+
 int main( ) {
 
   #ifdef LOCAL
@@ -209,6 +222,8 @@ int main( ) {
   compute_firsts( );
   compute_follows( );
   compute_predictions( );
+
+  cerr << "The prediction's set is " << verify_predictions( ) << "\n";
 
   //print_firsts( );
   //print_follows( );
