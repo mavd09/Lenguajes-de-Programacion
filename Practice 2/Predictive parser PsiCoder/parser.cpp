@@ -557,7 +557,7 @@ void BLOQUE_SELECCIONAR( ) {
 	if( token == "defecto" ) {
 		match( "defecto" );
 		match( "tk_dosp" );
-		BLOQUE_SELECCIONAR( );
+		BLOQUE_INSTRUCCIONES( );
 		return ;
 	}
 	cout << "Error BLOQUE_SELECCIONAR \n";
@@ -783,10 +783,10 @@ void COMPLEMENTO_BLOQUE_SELECCIONAR( ) {
 	if( token == "defecto" ) {
 		match( "defecto" );
 		match( "tk_dosp" );
-		BLOQUE_SELECCIONAR( );
+		BLOQUE_INSTRUCCIONES( );
 		return ;
 	}
-	if( token == "fin_seleccionar" ) {
+	if( ) {
 		return ;
 	}
 	cout << "Error COMPLEMENTO_BLOQUE_SELECCIONAR \n";
@@ -1460,7 +1460,7 @@ void SELECCIONAR( ) {
 		EXPRESION( );
 		match( "tk_par_der" );
 		match( "entre" );
-		BLOQUE_SELECCIONAR( );
+		BLOQUE_INSTRUCCIONES( );
 		match( "fin_seleccionar" );
 		return ;
 	}
