@@ -219,12 +219,14 @@ void lexer( ) {
   }
   program += "\0\0\0\0";
   splitInput( );
+  error.printError( );
   //printTokens( );
 }
 
 string getNextToken( ) {
   if( !tokens.empty( ) ) {
     Token curToken = tokens.front( );
+    row = curToken.r; col = curToken.c;
     tokens.pop_front( );
     if( curToken.tk != "" )
       return curToken.tk;
@@ -234,14 +236,14 @@ string getNextToken( ) {
 }
 
 void match( string expectedToken ) {
-  cout << "match ( " << token << ", " << expectedToken << " ) = ";
+//  cout << "match ( " << token << ", " << expectedToken << " ) = ";
   if( token == expectedToken ) {
-    cout << " true\n";
+//    cout << " true\n";
     token = getNextToken( );
     return ;
   }
-  cout << " false\n";
-  cout << "Error match\n";
+//  cout << " false\n";
+//  cout << "Error match\n";
   exit( 0 );
 }
 
@@ -249,11 +251,10 @@ void parser( ) {
   token = getNextToken( );
   PROGRAMA( );
   if( token != TOKEN_EOF ) {
-    cout << "->Error\n";
+//    cout << "->Error\n";
   }
-  else {
+  else
     cout << "El analisis sintactico ha finalizado exitosamente.\n";
-  }
 }
 
 int main( ) {
@@ -289,4 +290,5 @@ void initialize( ) {
   tokenName["("] = "tk_par_izq"; tokenName[")"] = "tk_par_der"; tokenName["."] = "tk_punto";
 
   validSymbols = "+-*/%=<>&|!:'\";,().";
+
 }

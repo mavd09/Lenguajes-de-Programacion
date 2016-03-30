@@ -6,27 +6,32 @@
 
 #include <bits/stdc++.h>
 
-#define PB      push_back
+#define PB          push_back
+#define PF          push_front
+#define MP          make_pair
+#define FI          first
+#define SE          second
 
 using namespace std;
 
-const string TOKEN_EOF = "$";
+typedef pair< int, string > pis;
 
 struct Token {
   string tk, lx;
   int r, c;
   Token( ) : tk( "" ), lx( "" ), r( 0 ), c( 0 ) { }
   Token( int r, int c ) : tk( "" ), lx( "" ), r( r ), c( c ) { }
-  void addChar( char c ) {
+  Token( string tk ) : tk( tk ), lx( tk ), r( 0 ), c( 0 ) { }
+  void add_char( char c ) {
     lx += c;
   }
-  void setTk( string tk ) {
+  void set_tk( string tk ) {
     this->tk = tk;
   }
-  void setLx( string lx ) {
+  void set_lx( string lx ) {
     this->lx = lx;
   }
-  void printToken( ) {
+  void print_token( ) {
     cout << "<";
     if( tk != "" )
       cout << tk << ",";
@@ -34,7 +39,12 @@ struct Token {
       cout << lx << ",";
     cout << r << "," << c << ">\n";
   }
-};
+  string get_value( ) {
+    if( tk != "" )
+      return tk;
+    return lx;
+  }
+}token;
 
 struct Error {
   int r, c;
@@ -48,95 +58,39 @@ struct Error {
   }
 };
 
+string EPS = "epsilon";
+Token TOKEN_EOF( "EOF" );
+
 int row, col, p;
-string program, token;
+string program;
+deque< string > derivation;
 deque< Token > tokens;
 Error error;
 bool aborted;
-vector< string > reservedWords;
-map< string, string > tokenName;
-string validSymbols;
+vector< string > reserved_words, grammar;
+map< string, string > token_name;
+string valid_symbols;
 
-void ASIGNACION_VARIABLE( );
-void AUXILIAR_BLOQUE_INSTRUCCIONES_HACER_MIENTRAS( );
-void AUXILIAR_BLOQUE_INSTRUCCIONES_HACER_MIENTRAS_FUNCION( );
-void BLOQUE_INSTRUCCIONES( );
-void BLOQUE_INSTRUCCIONES_FUNCION( );
-void BLOQUE_INSTRUCCIONES_HACER_MIENTRAS( );
-void BLOQUE_INSTRUCCIONES_HACER_MIENTRAS_FUNCION( );
-void BLOQUE_SELECCIONAR( );
-void BLOQUE_SELECCIONAR_FUNCION( );
-void CICLO_HACER_MIENTRAS( );
-void CICLO_HACER_MIENTRAS_FUNCION( );
-void CICLO_MIENTRAS( );
-void CICLO_MIENTRAS_FUNCION( );
-void CICLO_PARA( );
-void CICLO_PARA_1( );
-void CICLO_PARA_FUNCION( );
-void CICLO_PARA_FUNCION_1( );
-void COMPLEMENTO_BLOQUE_INSTRUCCIONES_HACER_MIENTRAS( );
-void COMPLEMENTO_BLOQUE_INSTRUCCIONES_HACER_MIENTRAS_FUNCION( );
-void COMPLEMENTO_BLOQUE_SELECCIONAR( );
-void COMPLEMENTO_BLOQUE_SELECCIONAR_FUNCION( );
-void COMPLEMENTO_CICLO_PARA_1( );
-void COMPLEMENTO_CICLO_PARA_FUNCION_1( );
-void COMPLEMENTO_CONDICIONAL_SI( );
-void COMPLEMENTO_CONDICIONAL_SI_FUNCION( );
-void COMPLEMENTO_DATOS_ESTRUCTURA( );
-void COMPLEMENTO_DECLARACION_O_ASIGNACION_O_LLAMADO( );
-void COMPLEMENTO_EXPRESION( );
-void COMPLEMENTO_EXPRESION_1_2( );
-void COMPLEMENTO_IDENTIFICADOR( );
-void COMPLEMENTO_IDENTIFICADOR_DATO_ESTRUCTURA( );
-void COMPLEMENTO_IDENTIFICADOR_O_LLAMADO( );
-void CONDICIONAL_SI( );
-void CONDICIONAL_SI_FUNCION( );
-void CONSTANTE( );
-void DATOS_ESTRUCTURA( );
-void DECLARACIONES_GLOBALES( );
-void DECLARACION_ESTRUCTURA( );
-void DECLARACION_FUNCION( );
-void DECLARACION_O_ASIGNACION_O_LLAMADO( );
-void DECLARACION_VARIABLE( );
-void DECLARACION_VARIABLES_GLOBALES( );
-void EXPRESION( );
-void EXPRESION_1( );
-void EXPRESION_2( );
-void EXPRESION_3( );
-void EXPRESION_4( );
-void FUNCION_PRINCIPAL( );
-void IDENTIFICADOR( );
-void IDENTIFICADOR_DATO_ESTRUCTURA( );
-void IDENTIFICADOR_O_LLAMADO( );
-void IMPRIMIR( );
-void LEER( );
-void LLAMADO_FUNCION( );
-void MAS_DECLARACION_VARIABLE( );
-void MAS_PARAMETROS_FUNCION( );
-void MAS_PARAMETROS_IMPRIMIR( );
-void MAS_PARAMETROS_LLAMADO_FUNCION( );
-void PARAMETROS_FUNCION( );
-void PARAMETROS_IMPRIMIR( );
-void PARAMETROS_LLAMADO_FUNCION( );
-void PROGRAMA( );
-void RETORNAR( );
-void ROMPER( );
-void SELECCIONAR( );
-void SELECCIONAR_FUNCION( );
-void TERMINO( );
-void TIPO_DATO( );
-void TIPO_DATO_PRIMITIVO( );
-void VARIABLE( );
+map< string, vector< vector< string > > > rules;
+set< string > terminals, non_terminals;
+map< string, set< string > > firsts, follows;
+map< string, vector< set< string > > > predictions;
+map< string, pis > token_symbol;
+
 void initialize( );
-bool isLetter( char c ) { return ( 'a' <= c && c <= 'z' ) || ( 'A' <= c && c <= 'Z' ); }
-bool isDigit( char c ) { return ( '0' <= c && c <= '9' ); }
-bool isWhiteSpace( char c ) { return ( c == '\n' || c == ' ' || c == '\t' || c == '\r' ); }
-bool isSymbol( char c ) { return ( validSymbols.find( c ) != string::npos ); }
-bool isValidCharacter( char c ) { return ( isLetter( c ) || isDigit( c ) || ( isWhiteSpace( c ) && c != '\n' ) || c == '_' ); }
+void print_firsts( );
+void print_follows( );
+void print_predictions( );
+void print_rule( );
+bool is_letter( char c ) { return ( 'a' <= c && c <= 'z' ) || ( 'A' <= c && c <= 'Z' ); }
+bool is_digit( char c ) { return ( '0' <= c && c <= '9' ); }
+bool is_white_space( char c ) { return ( c == '\n' || c == ' ' || c == '\t' || c == '\r' ); }
+bool is_symbol( char c ) { return ( valid_symbols.find( c ) != string::npos ); }
+bool is_valid_character( char c ) { return ( is_letter( c ) || is_digit( c ) || ( is_white_space( c ) && c != '\n' ) || c == '_' ); }
 
-bool ignoreWhiteSpace( ) {
+bool ignore_white_space( ) {
   bool flag = false;
-  while( isWhiteSpace( program[ p ] ) ) {
+  while( is_white_space( program[ p ] ) ) {
     if( program[ p ] == '\n' )
       row++, col = 1;
     else col++;
@@ -146,7 +100,7 @@ bool ignoreWhiteSpace( ) {
   return flag;
 }
 
-bool ignoreComments( ) {
+bool ignore_comments( ) {
   bool flag = false;
   if( program[ p ] == '/' && program[ p+1 ] == '/' ) {
     while( program[ p ] != '\n' ) {
@@ -170,84 +124,84 @@ bool ignoreComments( ) {
   return flag;
 }
 
-void ignoreGarbage( ) {
+void ignore_garbage( ) {
   bool found;
   do {
     found = false;
-    found |= ignoreWhiteSpace( );
-    found |= ignoreComments( );
+    found |= ignore_white_space( );
+    found |= ignore_comments( );
   } while( found );
 }
 
-Token nextToken( ) {
+Token next_token( ) {
   Token curToken( row, col );
   char c = program[ p ];
   p++; col++;
-  curToken.addChar( c );
-  if( isLetter( c ) ) {
+  curToken.add_char( c );
+  if( is_letter( c ) ) {
     c = program[ p ];
-    while( isLetter( c ) || isDigit( c ) || c == '_' ) {
+    while( is_letter( c ) || is_digit( c ) || c == '_' ) {
       p++; col++;
-      curToken.addChar( c );
+      curToken.add_char( c );
       c = program[ p ];
     }
-    if( !binary_search( reservedWords.begin( ), reservedWords.end( ), curToken.lx ) )
-      curToken.setTk( "id" );
+    if( !binary_search( reserved_words.begin( ), reserved_words.end( ), curToken.lx ) )
+      curToken.set_tk( "id" );
   }
-  else if( isDigit( c ) /*|| c == '-'*/ ) {
-    if( c == '-' && !isDigit( program[ p ] ) ) {
-        curToken.setTk( tokenName[ curToken.lx ] );
-        curToken.setLx( "" );
+  else if( is_digit( c ) /*|| c == '-'*/ ) {
+    if( c == '-' && !is_digit( program[ p ] ) ) {
+        curToken.set_tk( token_name[ curToken.lx ] );
+        curToken.set_lx( "" );
     }
     else {
       c = program[ p ];
       bool pnt = false;
-      while( isDigit( c ) || ( c == '.' && !pnt && isDigit( program[ p+1 ] ) ) ) {
+      while( is_digit( c ) || ( c == '.' && !pnt && is_digit( program[ p+1 ] ) ) ) {
         p++; col++;
         pnt |= ( c == '.' );
-        curToken.addChar( c );
+        curToken.add_char( c );
         c = program[ p ];
       }
-      if( pnt ) curToken.setTk( "tk_real" );
-      else curToken.setTk( "tk_entero" );
+      if( pnt ) curToken.set_tk( "tk_real" );
+      else curToken.set_tk( "tk_entero" );
     }
   }
-  else if( isSymbol( c ) ) {
-    if( c == '\'' && isValidCharacter( program[ p ] ) && program[ p+1 ] == '\'' ) {
-      curToken.addChar( program[ p ] );
-      curToken.addChar( program[ p+1 ] );
-      curToken.setTk( "tk_caracter" );
+  else if( is_symbol( c ) ) {
+    if( c == '\'' && is_valid_character( program[ p ] ) && program[ p+1 ] == '\'' ) {
+      curToken.add_char( program[ p ] );
+      curToken.add_char( program[ p+1 ] );
+      curToken.set_tk( "tk_caracter" );
       col += 2; p += 2;
     }
     else if( c == '"' ) {
       int i = p;
-      while( program[ i ] != 0 && isValidCharacter( program[ i ] ) )
+      while( program[ i ] != 0 && is_valid_character( program[ i ] ) )
         i++;
       if( program[ i ] == '"' ) {
         while( program[ p ] != '"' ) {
-          curToken.addChar( program[ p ] );
+          curToken.add_char( program[ p ] );
           p++; col++;
         }
-        curToken.addChar( program[ p ] );
-        curToken.setTk( "tk_cadena" );
+        curToken.add_char( program[ p ] );
+        curToken.set_tk( "tk_cadena" );
         p++; col++;
       }
       else {
-        curToken.setTk( tokenName[ curToken.lx ] );
-        curToken.setLx( "" );
+        curToken.set_tk( token_name[ curToken.lx ] );
+        curToken.set_lx( "" );
       }
     }
     else {
       string tmp = string( 1, c )+string( 1, program[ p ] );
-      if( tokenName.count( tmp ) ) {
-        curToken.addChar( program[ p ] );
-        curToken.setTk( tokenName[ curToken.lx ] );
-        curToken.setLx( "" );
+      if( token_name.count( tmp ) ) {
+        curToken.add_char( program[ p ] );
+        curToken.set_tk( token_name[ curToken.lx ] );
+        curToken.set_lx( "" );
         p++; col++;
       }
-      else if( tokenName.count( curToken.lx ) ) {
-        curToken.setTk( tokenName[ curToken.lx ] );
-        curToken.setLx( "" );
+      else if( token_name.count( curToken.lx ) ) {
+        curToken.set_tk( token_name[ curToken.lx ] );
+        curToken.set_lx( "" );
       }
       else {
         error = Error( row, col-1 );
@@ -262,68 +216,286 @@ Token nextToken( ) {
   return curToken;
 }
 
-void splitInput( ) {
+void split_input( ) {
   p = 0;
   row = col = 1;
-  ignoreGarbage( );
+  ignore_garbage( );
   while( program[ p ] != '\0' ) {
-    Token nxtToken = nextToken( );
+    Token nxtToken = next_token( );
     if( !aborted ) tokens.PB( nxtToken );
     else break;
-    ignoreGarbage( );
+    ignore_garbage( );
   }
 }
 
-void printTokens( ) {
+void print_tokens( ) {
   for( int i = 0; i < int( tokens.size( ) ); i++ )
-    tokens[ i ].printToken( );
+    tokens[ i ].print_token( );
   error.printError( );
 }
 
+void classify_symbol( string current ) {
+  if( 'a' <= current[ 0 ] && current[ 0 ] <= 'z' )
+    terminals.insert( current );
+  else
+    non_terminals.insert( current );
+}
+
+void read_grammar( ) {
+  bool initial_symbol = true;
+  string rule, lft, rght, garbage;
+  for( int i = 0; i < int( grammar.size( ) ); i++ ) {
+    rule = grammar[ i ];
+    stringstream ss_in( rule );
+    vector< string > current_rule;
+    ss_in >> lft >> garbage;
+    classify_symbol( lft );
+    if( initial_symbol ) {
+      derivation.push_back( lft );
+      follows[ lft ].insert( TOKEN_EOF.get_value( ) );
+      initial_symbol = false;
+    }
+    while( ss_in >> rght ) {
+      current_rule.PB( rght );
+      classify_symbol( rght );
+    }
+    if( current_rule.back( ) != EPS )
+      current_rule.PB( EPS );
+    rules[ lft ].PB( current_rule );
+  }
+}
+
+bool add_symbol( set< string >& set_non_terminal, string symbol ) {
+  if( set_non_terminal.count( symbol ) )
+    return false;
+  set_non_terminal.insert( symbol );
+  return true;
+}
+
+bool add_symbols_of( set< string >& set_non_terminal_1, set< string >& set_non_terminal_2, bool with_eps = false ) {
+  bool changes = false;
+  for( auto& symbol : set_non_terminal_2 ) {
+    if( !with_eps && symbol == EPS )
+      continue;
+    changes |= add_symbol( set_non_terminal_1, symbol );
+  }
+  return changes;
+}
+
+set< string > compute_firsts_from( vector< string >& rule, int from = 0 ) {
+  set< string > new_firsts;
+  if( from+1 == int( rule.size( ) ) && rule[ from ] == EPS ) {
+    add_symbol( new_firsts, EPS );
+  }
+  else {
+    for( int i = from; i < int( rule.size( ) ); i++ ) {
+      if( terminals.count( rule[ i ] ) ) {
+        add_symbol( new_firsts, rule[ i ] );
+        break;
+      }
+      else {
+        bool contain_eps = firsts[ rule[ i ] ].count( EPS );
+        add_symbols_of( new_firsts, firsts[ rule[ i ] ] );
+        if( contain_eps ) {
+          if( i+1 == int( rule.size( ) ) )
+            add_symbol( new_firsts, EPS );
+        }
+        else
+          break;
+      }
+    }
+  }
+  return new_firsts;
+}
+
+bool add_firsts_from( set< string >& firsts_non_terminal, vector< string > rule, int from = 0 ) {
+  bool changes = false;
+  set< string > new_firsts = compute_firsts_from( rule, from );
+  changes |= add_symbols_of( firsts_non_terminal, new_firsts, true );
+  return changes;
+}
+
+bool add_follows_from( set< string >& follows_non_terminal, string non_terminal, vector< string >& rule, int from = 0 ) {
+  bool changes = false;
+  set< string > new_firsts = compute_firsts_from( rule, from );
+  bool contain_eps = new_firsts.count( EPS );
+  changes |= add_symbols_of( follows_non_terminal, new_firsts );
+  if( contain_eps )
+    changes |= add_symbols_of( follows_non_terminal, follows[ non_terminal ] );
+  return changes;
+}
+
+void compute_firsts( ) {
+  bool changes;
+  do {
+    changes = false;
+    for( auto& non_terminal : non_terminals )
+      for( auto& rule : rules[ non_terminal ] )
+        changes |= add_firsts_from( firsts[ non_terminal ], rule );
+  } while( changes );
+}
+
+void compute_follows( ) {
+  bool changes;
+  do {
+    changes = false;
+    for( auto& non_terminal_1 : non_terminals )
+      for( auto& non_terminal_2 : non_terminals )
+        for( auto& rule : rules[ non_terminal_2 ] )
+          for( int i = 0; i < int( rule.size( ) ); i++ )
+            if( rule[ i ] == non_terminal_1 )
+              changes |= add_follows_from( follows[ non_terminal_1 ], non_terminal_2, rule, i+1 );
+  } while( changes );
+}
+
+void compute_predictions( ) {
+  for( auto& non_terminal : non_terminals ) {
+    for( auto& rule : rules[ non_terminal ] ) {
+      set< string > current_firsts = compute_firsts_from( rule );
+      set< string > current_predictions;
+      bool contain_eps = current_firsts.count( EPS );
+      add_symbols_of( current_predictions, current_firsts );
+      if( contain_eps )
+        add_symbols_of( current_predictions, follows[ non_terminal ] );
+      predictions[ non_terminal ].PB( current_predictions );
+    }
+  }
+}
+
+void verify_predictions( ) {
+  for( auto& non_terminal : non_terminals ) {
+    set< string > all;
+    for( auto& v : predictions[ non_terminal ] ) {
+      for( auto& s : v ) {
+        if( all.count( s ) ) {
+          cerr << "The prediction's set is bad\n";
+          return ;
+        }
+        all.insert( s );
+      }
+    }
+  }
+  cerr << "The prediction's set is good\n";
+}
+
 void lexer( ) {
-  initialize( );
   string line;
   while( getline( cin, line ) ) {
     program += ( line );
     program += ( '\n' );
   }
   program += "\0\0\0\0";
-  splitInput( );
-  //printTokens( );
+  split_input( );
+  error.printError( );
+  //print_tokens( );
 }
 
-string getNextToken( ) {
+Token get_next_token( ) {
+  Token ret = TOKEN_EOF;
+  ret.r = row; ret.c = col;
   if( !tokens.empty( ) ) {
-    Token curToken = tokens.front( );
+    ret = tokens.front( );
     tokens.pop_front( );
-    if( curToken.tk != "" )
-      return curToken.tk;
-    return curToken.lx;
   }
-  return TOKEN_EOF;
+  return ret;
 }
 
-void match( string expectedToken ) {
-  cout << "match ( " << token << ", " << expectedToken << " ) = ";
-  if( token == expectedToken ) {
-    cout << " true\n";
-    token = getNextToken( );
+void match( ) {
+  if( int( derivation.size( ) ) == 0 ) {
+    cout << "No se puede hacer emparejamiento\n";
+    exit( 0 );
+  }
+  string expected_token = derivation.front( );
+  derivation.pop_front( );
+  if( expected_token == EPS || expected_token == "" )
+    return ;
+  if( token.get_value( ) == expected_token ) {
+    token = get_next_token( );
     return ;
   }
-  cout << " false\n";
-  cout << "Error match\n";
+  if( expected_token == "funcion_principal" ) {
+    cout << "Error sintactico: falta funcion_principal\n";
+  }
+  else {
+    cout << "<" << token.r << "," << token.c << "> ";
+    cout << "Error sintactico: se encontro: \"" << token.lx << "\"; ";
+    cout << "se esperaba: \"" << expected_token << "\".\n";
+  }
+  exit( 0 );
+}
+
+void replace_in_derivation( ) {
+  while( int( derivation.size( ) ) > 0 ) {
+    string current_symbol = derivation.front( );
+    if( current_symbol == EPS || terminals.count( current_symbol ) ) {
+      match( );
+      continue;
+    }
+    else {
+      bool found_rule = false;
+      for( int i = 0; i < int( rules[ current_symbol ].size( ) ); i++ ) {
+        bool found_symbol = false;
+        for( auto& p : predictions[ current_symbol ][ i ] ) {
+          if( p == token.get_value( ) ) {
+            derivation.pop_front( );
+            for( int j = int( rules[ current_symbol ][ i ].size( ) )-1; j >= 0; j-- )
+              derivation.push_front( rules[ current_symbol ][ i ][ j ] );
+            found_symbol = true;
+            break;
+          }
+        }
+        found_rule |= found_symbol;
+        if( found_rule )
+          break;
+      }
+      if( !found_rule )
+        break;
+    }
+  }
+  vector< string > d;
+  for( auto& e : derivation )
+    if( e != EPS )
+      d.PB( e );
+  set< string > expected_tokens = compute_firsts_from( d );
+  set< pis > sorted_expected_tokens;
+  for( auto& e : expected_tokens )
+    if( token_symbol.count( e ) )
+      sorted_expected_tokens.insert( token_symbol[ e ] );
+  if( int( sorted_expected_tokens.size( ) ) == 0 ) {
+    cout << "El analisis sintactico ha finalizado exitosamente.\n";
+    exit( 0 );
+  }
+  if( expected_tokens.count( "funcion_principal" ) ) {
+    cout << "Error sintactico: falta funcion_principal\n";
+  }
+  else {
+    cout << "<" << token.r << "," << token.c << "> ";
+    cout << "Error sintactico: se encontro: \"" << token.lx << "\"; ";
+    cout << "se esperaba:";
+    bool fst = true;
+    for( auto& e : sorted_expected_tokens ) {
+      if( !fst )
+        cout << ",";
+      else
+        fst = false;
+      cout << " \"" << e.SE << "\"";
+    }
+    cout << ".\n";
+  }
   exit( 0 );
 }
 
 void parser( ) {
-  token = getNextToken( );
-  PROGRAMA( );
-  if( token != TOKEN_EOF ) {
-    cout << "->Error\n";
-  }
-  else {
-    cout << "El analisis sintactico ha finalizado exitosamente.\n";
-  }
+
+  read_grammar( );
+
+  compute_firsts( );
+  compute_follows( );
+  compute_predictions( );
+
+  token = get_next_token( );
+  replace_in_derivation( );
+
 }
 
 int main( ) {
@@ -333,6 +505,8 @@ int main( ) {
     freopen( "output", "w", stdout );
   #endif // LOCAL
 
+  initialize( );
+
   lexer( );
   parser( );
 
@@ -341,1229 +515,275 @@ int main( ) {
 
 void initialize( ) {
 
-  reservedWords.PB("booleano"); reservedWords.PB("caracter"); reservedWords.PB("entero"); reservedWords.PB("real"); reservedWords.PB("cadena");
-  reservedWords.PB("leer"); reservedWords.PB("seleccionar"); reservedWords.PB("imprimir"); reservedWords.PB("si"); reservedWords.PB("entonces");
-  reservedWords.PB("fin_si"); reservedWords.PB("si_no"); reservedWords.PB("mientras"); reservedWords.PB("verdadero"); reservedWords.PB("hacer");
-  reservedWords.PB("fin_mientras"); reservedWords.PB("para"); reservedWords.PB("fin_para"); reservedWords.PB("entre"); reservedWords.PB("caso");
-  reservedWords.PB("falso"); reservedWords.PB("romper"); reservedWords.PB("defecto"); reservedWords.PB("fin_seleccionar"); reservedWords.PB("estructura");
-  reservedWords.PB("fin_estructura"); reservedWords.PB("retornar"); reservedWords.PB("fin_funcion"); reservedWords.PB("funcion_principal"); reservedWords.PB("funcion");
-  reservedWords.PB("fin_principal");
+  reserved_words.PB("booleano"); reserved_words.PB("caracter"); reserved_words.PB("entero"); reserved_words.PB("real"); reserved_words.PB("cadena");
+  reserved_words.PB("leer"); reserved_words.PB("seleccionar"); reserved_words.PB("imprimir"); reserved_words.PB("si"); reserved_words.PB("entonces");
+  reserved_words.PB("fin_si"); reserved_words.PB("si_no"); reserved_words.PB("mientras"); reserved_words.PB("verdadero"); reserved_words.PB("hacer");
+  reserved_words.PB("fin_mientras"); reserved_words.PB("para"); reserved_words.PB("fin_para"); reserved_words.PB("entre"); reserved_words.PB("caso");
+  reserved_words.PB("falso"); reserved_words.PB("romper"); reserved_words.PB("defecto"); reserved_words.PB("fin_seleccionar"); reserved_words.PB("estructura");
+  reserved_words.PB("fin_estructura"); reserved_words.PB("retornar"); reserved_words.PB("fin_funcion"); reserved_words.PB("funcion_principal"); reserved_words.PB("funcion");
+  reserved_words.PB("fin_principal");
 
-  sort( reservedWords.begin( ), reservedWords.end( ) );
+  sort( reserved_words.begin( ), reserved_words.end( ) );
 
-  tokenName["+"] = "tk_mas"; tokenName["-"] = "tk_menos"; tokenName["*"] = "tk_mult"; tokenName["/"] = "tk_div";
-  tokenName["%"] = "tk_mod"; tokenName["="] = "tk_asig"; tokenName["<"] = "tk_menor"; tokenName[">"] = "tk_mayor";
-  tokenName["<="] = "tk_menor_igual"; tokenName["||"] = "tk_o"; tokenName[">="] = "tk_mayor_igual"; tokenName["=="] = "tk_igual";
-  tokenName["&&"] = "tk_y"; tokenName["!="] = "tk_dif"; tokenName["!"] = "tk_neg"; tokenName[":"] = "tk_dosp";
-  tokenName["'"] = "tk_comilla_sen"; tokenName["\""] = "tk_comilla_dob"; tokenName[";"] = "tk_pyc"; tokenName[","] = "tk_coma";
-  tokenName["("] = "tk_par_izq"; tokenName[")"] = "tk_par_der"; tokenName["."] = "tk_punto";
+  token_name["+"] = "tk_mas"; token_name["-"] = "tk_menos"; token_name["*"] = "tk_mult"; token_name["/"] = "tk_div";
+  token_name["%"] = "tk_mod"; token_name["="] = "tk_asig"; token_name["<"] = "tk_menor"; token_name[">"] = "tk_mayor";
+  token_name["<="] = "tk_menor_igual"; token_name["||"] = "tk_o"; token_name[">="] = "tk_mayor_igual"; token_name["=="] = "tk_igual";
+  token_name["&&"] = "tk_y"; token_name["!="] = "tk_dif"; token_name["!"] = "tk_neg"; token_name[":"] = "tk_dosp";
+  token_name["'"] = "tk_comilla_sen"; token_name["\""] = "tk_comilla_dob"; token_name[";"] = "tk_pyc"; token_name[","] = "tk_coma";
+  token_name["("] = "tk_par_izq"; token_name[")"] = "tk_par_der"; token_name["."] = "tk_punto";
 
-  validSymbols = "+-*/%=<>&|!:'\";,().";
-}
-void ASIGNACION_VARIABLE( ) {
-	if( token == "tk_asig" ) {
-		match( "tk_asig" );
-		EXPRESION( );
-		return ;
-	}
-	if( token == "tk_coma" || token == "tk_pyc" ) {
-		return ;
-	}
-	cout << "Error ASIGNACION_VARIABLE \n";
-	exit( 0 );
-}
-void AUXILIAR_BLOQUE_INSTRUCCIONES_HACER_MIENTRAS( ) {
-	if( token == "hacer" ) {
-		match( "hacer" );
-		BLOQUE_INSTRUCCIONES( );
-		match( "fin_mientras" );
-		BLOQUE_INSTRUCCIONES_HACER_MIENTRAS( );
-		return ;
-	}
-	if( token == "tk_pyc" ) {
-		match( "tk_pyc" );
-		return ;
-	}
-	cout << "Error AUXILIAR_BLOQUE_INSTRUCCIONES_HACER_MIENTRAS \n";
-	exit( 0 );
-}
-void AUXILIAR_BLOQUE_INSTRUCCIONES_HACER_MIENTRAS_FUNCION( ) {
-	if( token == "hacer" ) {
-		match( "hacer" );
-		BLOQUE_INSTRUCCIONES_FUNCION( );
-		match( "fin_mientras" );
-		BLOQUE_INSTRUCCIONES_HACER_MIENTRAS_FUNCION( );
-		return ;
-	}
-	if( token == "tk_pyc" ) {
-		match( "tk_pyc" );
-		return ;
-	}
-	cout << "Error AUXILIAR_BLOQUE_INSTRUCCIONES_HACER_MIENTRAS_FUNCION \n";
-	exit( 0 );
-}
-void BLOQUE_INSTRUCCIONES( ) {
-	if( token == "leer" ) {
-		LEER( );
-		BLOQUE_INSTRUCCIONES( );
-		return ;
-	}
-	if( token == "imprimir" ) {
-		IMPRIMIR( );
-		BLOQUE_INSTRUCCIONES( );
-		return ;
-	}
-	if( token == "booleano" || token == "cadena" || token == "caracter" || token == "entero" || token == "id" || token == "real" ) {
-		DECLARACION_O_ASIGNACION_O_LLAMADO( );
-		BLOQUE_INSTRUCCIONES( );
-		return ;
-	}
-	if( token == "si" ) {
-		CONDICIONAL_SI( );
-		BLOQUE_INSTRUCCIONES( );
-		return ;
-	}
-	if( token == "seleccionar" ) {
-		SELECCIONAR( );
-		BLOQUE_INSTRUCCIONES( );
-		return ;
-	}
-	if( token == "mientras" ) {
-		CICLO_MIENTRAS( );
-		BLOQUE_INSTRUCCIONES( );
-		return ;
-	}
-	if( token == "hacer" ) {
-		CICLO_HACER_MIENTRAS( );
-		BLOQUE_INSTRUCCIONES( );
-		return ;
-	}
-	if( token == "para" ) {
-		CICLO_PARA( );
-		BLOQUE_INSTRUCCIONES( );
-		return ;
-	}
-	if( token == "romper" ) {
-		ROMPER( );
-		BLOQUE_INSTRUCCIONES( );
-		return ;
-	}
-	if( token == "caso" || token == "defecto" || token == "fin_mientras" || token == "fin_para" || token == "fin_principal" || token == "fin_seleccionar" || token == "fin_si" || token == "si_no" ) {
-		return ;
-	}
-	cout << "Error BLOQUE_INSTRUCCIONES \n";
-	exit( 0 );
-}
-void BLOQUE_INSTRUCCIONES_FUNCION( ) {
-	if( token == "leer" ) {
-		LEER( );
-		BLOQUE_INSTRUCCIONES_FUNCION( );
-		return ;
-	}
-	if( token == "imprimir" ) {
-		IMPRIMIR( );
-		BLOQUE_INSTRUCCIONES_FUNCION( );
-		return ;
-	}
-	if( token == "booleano" || token == "cadena" || token == "caracter" || token == "entero" || token == "id" || token == "real" ) {
-		DECLARACION_O_ASIGNACION_O_LLAMADO( );
-		BLOQUE_INSTRUCCIONES_FUNCION( );
-		return ;
-	}
-	if( token == "si" ) {
-		CONDICIONAL_SI_FUNCION( );
-		BLOQUE_INSTRUCCIONES_FUNCION( );
-		return ;
-	}
-	if( token == "seleccionar" ) {
-		SELECCIONAR_FUNCION( );
-		BLOQUE_INSTRUCCIONES_FUNCION( );
-		return ;
-	}
-	if( token == "mientras" ) {
-		CICLO_MIENTRAS_FUNCION( );
-		BLOQUE_INSTRUCCIONES_FUNCION( );
-		return ;
-	}
-	if( token == "hacer" ) {
-		CICLO_HACER_MIENTRAS_FUNCION( );
-		BLOQUE_INSTRUCCIONES_FUNCION( );
-		return ;
-	}
-	if( token == "para" ) {
-		CICLO_PARA_FUNCION( );
-		BLOQUE_INSTRUCCIONES_FUNCION( );
-		return ;
-	}
-	if( token == "retornar" ) {
-		RETORNAR( );
-		BLOQUE_INSTRUCCIONES_FUNCION( );
-		return ;
-	}
-	if( token == "romper" ) {
-		ROMPER( );
-		BLOQUE_INSTRUCCIONES_FUNCION( );
-		return ;
-	}
-	if( token == "caso" || token == "defecto" || token == "fin_funcion" || token == "fin_mientras" || token == "fin_para" || token == "fin_seleccionar" || token == "fin_si" || token == "si_no" ) {
-		return ;
-	}
-	cout << "Error BLOQUE_INSTRUCCIONES_FUNCION \n";
-	exit( 0 );
-}
-void BLOQUE_INSTRUCCIONES_HACER_MIENTRAS( ) {
-	if( token == "booleano" || token == "cadena" || token == "caracter" || token == "entero" || token == "hacer" || token == "id" || token == "imprimir" || token == "leer" || token == "para" || token == "real" || token == "romper" || token == "seleccionar" || token == "si" ) {
-		COMPLEMENTO_BLOQUE_INSTRUCCIONES_HACER_MIENTRAS( );
-		BLOQUE_INSTRUCCIONES_HACER_MIENTRAS( );
-		return ;
-	}
-	if( token == "mientras" ) {
-		match( "mientras" );
-		match( "tk_par_izq" );
-		EXPRESION( );
-		match( "tk_par_der" );
-		AUXILIAR_BLOQUE_INSTRUCCIONES_HACER_MIENTRAS( );
-		return ;
-	}
-	cout << "Error BLOQUE_INSTRUCCIONES_HACER_MIENTRAS \n";
-	exit( 0 );
-}
-void BLOQUE_INSTRUCCIONES_HACER_MIENTRAS_FUNCION( ) {
-	if( token == "booleano" || token == "cadena" || token == "caracter" || token == "entero" || token == "hacer" || token == "id" || token == "imprimir" || token == "leer" || token == "para" || token == "real" || token == "retornar" || token == "romper" || token == "seleccionar" || token == "si" ) {
-		COMPLEMENTO_BLOQUE_INSTRUCCIONES_HACER_MIENTRAS_FUNCION( );
-		BLOQUE_INSTRUCCIONES_HACER_MIENTRAS_FUNCION( );
-		return ;
-	}
-	if( token == "mientras" ) {
-		match( "mientras" );
-		match( "tk_par_izq" );
-		EXPRESION( );
-		match( "tk_par_der" );
-		AUXILIAR_BLOQUE_INSTRUCCIONES_HACER_MIENTRAS_FUNCION( );
-		return ;
-	}
-	cout << "Error BLOQUE_INSTRUCCIONES_HACER_MIENTRAS_FUNCION \n";
-	exit( 0 );
-}
-void BLOQUE_SELECCIONAR( ) {
-	if( token == "caso" ) {
-		match( "caso" );
-		EXPRESION( );
-		match( "tk_dosp" );
-		BLOQUE_INSTRUCCIONES( );
-		COMPLEMENTO_BLOQUE_SELECCIONAR( );
-		return ;
-	}
-	if( token == "defecto" ) {
-		match( "defecto" );
-		match( "tk_dosp" );
-		BLOQUE_INSTRUCCIONES( );
-		return ;
-	}
-	cout << "Error BLOQUE_SELECCIONAR \n";
-	exit( 0 );
-}
-void BLOQUE_SELECCIONAR_FUNCION( ) {
-	if( token == "caso" ) {
-		match( "caso" );
-		EXPRESION( );
-		match( "tk_dosp" );
-		BLOQUE_INSTRUCCIONES_FUNCION( );
-		COMPLEMENTO_BLOQUE_SELECCIONAR_FUNCION( );
-		return ;
-	}
-	if( token == "defecto" ) {
-		match( "defecto" );
-		match( "tk_dosp" );
-		BLOQUE_INSTRUCCIONES_FUNCION( );
-		return ;
-	}
-	cout << "Error BLOQUE_SELECCIONAR_FUNCION \n";
-	exit( 0 );
-}
-void CICLO_HACER_MIENTRAS( ) {
-	if( token == "hacer" ) {
-		match( "hacer" );
-		BLOQUE_INSTRUCCIONES_HACER_MIENTRAS( );
-		return ;
-	}
-	cout << "Error CICLO_HACER_MIENTRAS \n";
-	exit( 0 );
-}
-void CICLO_HACER_MIENTRAS_FUNCION( ) {
-	if( token == "hacer" ) {
-		match( "hacer" );
-		BLOQUE_INSTRUCCIONES_HACER_MIENTRAS_FUNCION( );
-		return ;
-	}
-	cout << "Error CICLO_HACER_MIENTRAS_FUNCION \n";
-	exit( 0 );
-}
-void CICLO_MIENTRAS( ) {
-	if( token == "mientras" ) {
-		match( "mientras" );
-		match( "tk_par_izq" );
-		EXPRESION( );
-		match( "tk_par_der" );
-		match( "hacer" );
-		BLOQUE_INSTRUCCIONES( );
-		match( "fin_mientras" );
-		return ;
-	}
-	cout << "Error CICLO_MIENTRAS \n";
-	exit( 0 );
-}
-void CICLO_MIENTRAS_FUNCION( ) {
-	if( token == "mientras" ) {
-		match( "mientras" );
-		match( "tk_par_izq" );
-		EXPRESION( );
-		match( "tk_par_der" );
-		match( "hacer" );
-		BLOQUE_INSTRUCCIONES_FUNCION( );
-		match( "fin_mientras" );
-		return ;
-	}
-	cout << "Error CICLO_MIENTRAS_FUNCION \n";
-	exit( 0 );
-}
-void CICLO_PARA( ) {
-	if( token == "para" ) {
-		match( "para" );
-		match( "tk_par_izq" );
-		CICLO_PARA_1( );
-		match( "tk_pyc" );
-		EXPRESION( );
-		match( "tk_pyc" );
-		EXPRESION( );
-		match( "tk_par_der" );
-		match( "hacer" );
-		BLOQUE_INSTRUCCIONES( );
-		match( "fin_para" );
-		return ;
-	}
-	cout << "Error CICLO_PARA \n";
-	exit( 0 );
-}
-void CICLO_PARA_1( ) {
-	if( token == "booleano" || token == "cadena" || token == "caracter" || token == "entero" || token == "real" ) {
-		TIPO_DATO_PRIMITIVO( );
-		match( "id" );
-		match( "tk_asig" );
-		EXPRESION( );
-		return ;
-	}
-	if( token == "id" ) {
-		match( "id" );
-		COMPLEMENTO_CICLO_PARA_1( );
-		return ;
-	}
-	cout << "Error CICLO_PARA_1 \n";
-	exit( 0 );
-}
-void CICLO_PARA_FUNCION( ) {
-	if( token == "para" ) {
-		match( "para" );
-		match( "tk_par_izq" );
-		CICLO_PARA_FUNCION_1( );
-		match( "tk_pyc" );
-		EXPRESION( );
-		match( "tk_pyc" );
-		EXPRESION( );
-		match( "tk_par_der" );
-		match( "hacer" );
-		BLOQUE_INSTRUCCIONES_FUNCION( );
-		match( "fin_para" );
-		return ;
-	}
-	cout << "Error CICLO_PARA_FUNCION \n";
-	exit( 0 );
-}
-void CICLO_PARA_FUNCION_1( ) {
-	if( token == "booleano" || token == "cadena" || token == "caracter" || token == "entero" || token == "real" ) {
-		TIPO_DATO_PRIMITIVO( );
-		match( "id" );
-		match( "tk_asig" );
-		EXPRESION( );
-		return ;
-	}
-	if( token == "id" ) {
-		match( "id" );
-		COMPLEMENTO_CICLO_PARA_FUNCION_1( );
-		return ;
-	}
-	cout << "Error CICLO_PARA_FUNCION_1 \n";
-	exit( 0 );
-}
-void COMPLEMENTO_BLOQUE_INSTRUCCIONES_HACER_MIENTRAS( ) {
-	if( token == "leer" ) {
-		LEER( );
-		return ;
-	}
-	if( token == "imprimir" ) {
-		IMPRIMIR( );
-		return ;
-	}
-	if( token == "booleano" || token == "cadena" || token == "caracter" || token == "entero" || token == "id" || token == "real" ) {
-		DECLARACION_O_ASIGNACION_O_LLAMADO( );
-		return ;
-	}
-	if( token == "si" ) {
-		CONDICIONAL_SI( );
-		return ;
-	}
-	if( token == "seleccionar" ) {
-		SELECCIONAR( );
-		return ;
-	}
-	if( token == "hacer" ) {
-		CICLO_HACER_MIENTRAS( );
-		return ;
-	}
-	if( token == "para" ) {
-		CICLO_PARA( );
-		return ;
-	}
-	if( token == "romper" ) {
-		ROMPER( );
-		return ;
-	}
-	cout << "Error COMPLEMENTO_BLOQUE_INSTRUCCIONES_HACER_MIENTRAS \n";
-	exit( 0 );
-}
-void COMPLEMENTO_BLOQUE_INSTRUCCIONES_HACER_MIENTRAS_FUNCION( ) {
-	if( token == "leer" ) {
-		LEER( );
-		return ;
-	}
-	if( token == "imprimir" ) {
-		IMPRIMIR( );
-		return ;
-	}
-	if( token == "booleano" || token == "cadena" || token == "caracter" || token == "entero" || token == "id" || token == "real" ) {
-		DECLARACION_O_ASIGNACION_O_LLAMADO( );
-		return ;
-	}
-	if( token == "si" ) {
-		CONDICIONAL_SI_FUNCION( );
-		return ;
-	}
-	if( token == "seleccionar" ) {
-		SELECCIONAR_FUNCION( );
-		return ;
-	}
-	if( token == "hacer" ) {
-		CICLO_HACER_MIENTRAS_FUNCION( );
-		return ;
-	}
-	if( token == "para" ) {
-		CICLO_PARA_FUNCION( );
-		return ;
-	}
-	if( token == "retornar" ) {
-		RETORNAR( );
-		return ;
-	}
-	if( token == "romper" ) {
-		ROMPER( );
-		return ;
-	}
-	cout << "Error COMPLEMENTO_BLOQUE_INSTRUCCIONES_HACER_MIENTRAS_FUNCION \n";
-	exit( 0 );
-}
-void COMPLEMENTO_BLOQUE_SELECCIONAR( ) {
-	if( token == "caso" ) {
-		match( "caso" );
-		EXPRESION( );
-		match( "tk_dosp" );
-		BLOQUE_INSTRUCCIONES( );
-		COMPLEMENTO_BLOQUE_SELECCIONAR( );
-		return ;
-	}
-	if( token == "defecto" ) {
-		match( "defecto" );
-		match( "tk_dosp" );
-		BLOQUE_INSTRUCCIONES( );
-		return ;
-	}
-	if( token == "fin_seleccionar" ) {
-		return ;
-	}
-	cout << "Error COMPLEMENTO_BLOQUE_SELECCIONAR \n";
-	exit( 0 );
-}
-void COMPLEMENTO_BLOQUE_SELECCIONAR_FUNCION( ) {
-	if( token == "caso" ) {
-		match( "caso" );
-		EXPRESION( );
-		match( "tk_dosp" );
-		BLOQUE_INSTRUCCIONES_FUNCION( );
-		COMPLEMENTO_BLOQUE_SELECCIONAR_FUNCION( );
-		return ;
-	}
-	if( token == "defecto" ) {
-		match( "defecto" );
-		match( "tk_dosp" );
-		BLOQUE_INSTRUCCIONES_FUNCION( );
-		return ;
-	}
-	if( token == "fin_seleccionar" ) {
-		return ;
-	}
-	cout << "Error COMPLEMENTO_BLOQUE_SELECCIONAR_FUNCION \n";
-	exit( 0 );
-}
-void COMPLEMENTO_CICLO_PARA_1( ) {
-	if( token == "id" ) {
-		match( "id" );
-		match( "tk_asig" );
-		EXPRESION( );
-		return ;
-	}
-	if( token == "tk_asig" ) {
-		match( "tk_asig" );
-		EXPRESION( );
-		return ;
-	}
-	cout << "Error COMPLEMENTO_CICLO_PARA_1 \n";
-	exit( 0 );
-}
-void COMPLEMENTO_CICLO_PARA_FUNCION_1( ) {
-	if( token == "id" ) {
-		match( "id" );
-		match( "tk_asig" );
-		EXPRESION( );
-		return ;
-	}
-	if( token == "tk_asig" ) {
-		match( "tk_asig" );
-		EXPRESION( );
-		return ;
-	}
-	cout << "Error COMPLEMENTO_CICLO_PARA_FUNCION_1 \n";
-	exit( 0 );
-}
-void COMPLEMENTO_CONDICIONAL_SI( ) {
-	if( token == "si_no" ) {
-		match( "si_no" );
-		BLOQUE_INSTRUCCIONES( );
-		match( "fin_si" );
-		return ;
-	}
-	if( token == "fin_si" ) {
-		match( "fin_si" );
-		return ;
-	}
-	cout << "Error COMPLEMENTO_CONDICIONAL_SI \n";
-	exit( 0 );
-}
-void COMPLEMENTO_CONDICIONAL_SI_FUNCION( ) {
-	if( token == "si_no" ) {
-		match( "si_no" );
-		BLOQUE_INSTRUCCIONES_FUNCION( );
-		match( "fin_si" );
-		return ;
-	}
-	if( token == "fin_si" ) {
-		match( "fin_si" );
-		return ;
-	}
-	cout << "Error COMPLEMENTO_CONDICIONAL_SI_FUNCION \n";
-	exit( 0 );
-}
-void COMPLEMENTO_DATOS_ESTRUCTURA( ) {
-	if( token == "booleano" || token == "cadena" || token == "caracter" || token == "entero" || token == "id" || token == "real" ) {
-		TIPO_DATO( );
-		DECLARACION_VARIABLE( );
-		match( "tk_pyc" );
-		COMPLEMENTO_DATOS_ESTRUCTURA( );
-		return ;
-	}
-	if( token == "fin_estructura" ) {
-		return ;
-	}
-	cout << "Error COMPLEMENTO_DATOS_ESTRUCTURA \n";
-	exit( 0 );
-}
-void COMPLEMENTO_DECLARACION_O_ASIGNACION_O_LLAMADO( ) {
-	if( token == "tk_punto" ) {
-		IDENTIFICADOR_DATO_ESTRUCTURA( );
-		ASIGNACION_VARIABLE( );
-		return ;
-	}
-	if( token == "tk_asig" || token == "tk_pyc" ) {
-		ASIGNACION_VARIABLE( );
-		return ;
-	}
-	if( token == "tk_par_izq" ) {
-		LLAMADO_FUNCION( );
-		return ;
-	}
-	if( token == "id" ) {
-		DECLARACION_VARIABLE( );
-		return ;
-	}
-	cout << "Error COMPLEMENTO_DECLARACION_O_ASIGNACION_O_LLAMADO \n";
-	exit( 0 );
-}
-void COMPLEMENTO_EXPRESION( ) {
-	if( token == "tk_y" ) {
-		match( "tk_y" );
-		TERMINO( );
-		COMPLEMENTO_EXPRESION( );
-		return ;
-	}
-	if( token == "tk_o" ) {
-		match( "tk_o" );
-		TERMINO( );
-		COMPLEMENTO_EXPRESION( );
-		return ;
-	}
-	if( token == "tk_coma" || token == "tk_dif" || token == "tk_div" || token == "tk_dosp" || token == "tk_igual" || token == "tk_mas" || token == "tk_mayor" || token == "tk_mayor_igual" || token == "tk_menor" || token == "tk_menor_igual" || token == "tk_menos" || token == "tk_mod" || token == "tk_mult" || token == "tk_par_der" || token == "tk_pyc" ) {
-		EXPRESION_1( );
-		return ;
-	}
-	cout << "Error COMPLEMENTO_EXPRESION \n";
-	exit( 0 );
-}
-void COMPLEMENTO_EXPRESION_1_2( ) {
-	if( token == "tk_y" ) {
-		match( "tk_y" );
-		TERMINO( );
-		COMPLEMENTO_EXPRESION( );
-		return ;
-	}
-	if( token == "tk_o" ) {
-		match( "tk_o" );
-		TERMINO( );
-		COMPLEMENTO_EXPRESION( );
-		return ;
-	}
-	if( token == "tk_mas" ) {
-		match( "tk_mas" );
-		TERMINO( );
-		COMPLEMENTO_EXPRESION( );
-		return ;
-	}
-	if( token == "tk_menos" ) {
-		match( "tk_menos" );
-		TERMINO( );
-		COMPLEMENTO_EXPRESION( );
-		return ;
-	}
-	if( token == "tk_mult" ) {
-		match( "tk_mult" );
-		TERMINO( );
-		COMPLEMENTO_EXPRESION( );
-		return ;
-	}
-	if( token == "tk_mod" ) {
-		match( "tk_mod" );
-		TERMINO( );
-		COMPLEMENTO_EXPRESION( );
-		return ;
-	}
-	if( token == "tk_div" ) {
-		match( "tk_div" );
-		TERMINO( );
-		COMPLEMENTO_EXPRESION( );
-		return ;
-	}
-	if( token == "tk_coma" || token == "tk_dosp" || token == "tk_par_der" || token == "tk_pyc" ) {
-		return ;
-	}
-	cout << "Error COMPLEMENTO_EXPRESION_1_2 \n";
-	exit( 0 );
-}
-void COMPLEMENTO_IDENTIFICADOR( ) {
-	if( token == "tk_punto" ) {
-		match( "tk_punto" );
-		match( "id" );
-		COMPLEMENTO_IDENTIFICADOR( );
-		return ;
-	}
-	if( token == "tk_par_der" ) {
-		return ;
-	}
-	cout << "Error COMPLEMENTO_IDENTIFICADOR \n";
-	exit( 0 );
-}
-void COMPLEMENTO_IDENTIFICADOR_DATO_ESTRUCTURA( ) {
-	if( token == "tk_punto" ) {
-		match( "tk_punto" );
-		match( "id" );
-		COMPLEMENTO_IDENTIFICADOR_DATO_ESTRUCTURA( );
-		return ;
-	}
-	if( token == "tk_asig" || token == "tk_coma" || token == "tk_dif" || token == "tk_div" || token == "tk_dosp" || token == "tk_igual" || token == "tk_mas" || token == "tk_mayor" || token == "tk_mayor_igual" || token == "tk_menor" || token == "tk_menor_igual" || token == "tk_menos" || token == "tk_mod" || token == "tk_mult" || token == "tk_o" || token == "tk_par_der" || token == "tk_pyc" || token == "tk_y" ) {
-		return ;
-	}
-	cout << "Error COMPLEMENTO_IDENTIFICADOR_DATO_ESTRUCTURA \n";
-	exit( 0 );
-}
-void COMPLEMENTO_IDENTIFICADOR_O_LLAMADO( ) {
-	if( token == "tk_par_izq" ) {
-		LLAMADO_FUNCION( );
-		return ;
-	}
-	if( token == "tk_punto" ) {
-		IDENTIFICADOR_DATO_ESTRUCTURA( );
-		return ;
-	}
-	if( token == "tk_coma" || token == "tk_dif" || token == "tk_div" || token == "tk_dosp" || token == "tk_igual" || token == "tk_mas" || token == "tk_mayor" || token == "tk_mayor_igual" || token == "tk_menor" || token == "tk_menor_igual" || token == "tk_menos" || token == "tk_mod" || token == "tk_mult" || token == "tk_o" || token == "tk_par_der" || token == "tk_pyc" || token == "tk_y" ) {
-		return ;
-	}
-	cout << "Error COMPLEMENTO_IDENTIFICADOR_O_LLAMADO \n";
-	exit( 0 );
-}
-void CONDICIONAL_SI( ) {
-	if( token == "si" ) {
-		match( "si" );
-		match( "tk_par_izq" );
-		EXPRESION( );
-		match( "tk_par_der" );
-		match( "entonces" );
-		BLOQUE_INSTRUCCIONES( );
-		COMPLEMENTO_CONDICIONAL_SI( );
-		return ;
-	}
-	cout << "Error CONDICIONAL_SI \n";
-	exit( 0 );
-}
-void CONDICIONAL_SI_FUNCION( ) {
-	if( token == "si" ) {
-		match( "si" );
-		match( "tk_par_izq" );
-		EXPRESION( );
-		match( "tk_par_der" );
-		match( "entonces" );
-		BLOQUE_INSTRUCCIONES_FUNCION( );
-		COMPLEMENTO_CONDICIONAL_SI_FUNCION( );
-		return ;
-	}
-	cout << "Error CONDICIONAL_SI_FUNCION \n";
-	exit( 0 );
-}
-void CONSTANTE( ) {
-	if( token == "tk_entero" ) {
-		match( "tk_entero" );
-		return ;
-	}
-	if( token == "tk_real" ) {
-		match( "tk_real" );
-		return ;
-	}
-	if( token == "tk_caracter" ) {
-		match( "tk_caracter" );
-		return ;
-	}
-	if( token == "tk_cadena" ) {
-		match( "tk_cadena" );
-		return ;
-	}
-	cout << "Error CONSTANTE \n";
-	exit( 0 );
-}
-void DATOS_ESTRUCTURA( ) {
-	if( token == "booleano" || token == "cadena" || token == "caracter" || token == "entero" || token == "id" || token == "real" ) {
-		TIPO_DATO( );
-		DECLARACION_VARIABLE( );
-		match( "tk_pyc" );
-		COMPLEMENTO_DATOS_ESTRUCTURA( );
-		return ;
-	}
-	cout << "Error DATOS_ESTRUCTURA \n";
-	exit( 0 );
-}
-void DECLARACIONES_GLOBALES( ) {
-	if( token == "booleano" || token == "cadena" || token == "caracter" || token == "entero" || token == "id" || token == "real" ) {
-		DECLARACION_VARIABLES_GLOBALES( );
-		DECLARACIONES_GLOBALES( );
-		return ;
-	}
-	if( token == "funcion" ) {
-		DECLARACION_FUNCION( );
-		DECLARACIONES_GLOBALES( );
-		return ;
-	}
-	if( token == "estructura" ) {
-		DECLARACION_ESTRUCTURA( );
-		DECLARACIONES_GLOBALES( );
-		return ;
-	}
-	if( token == "$" || token == "funcion_principal" ) {
-		return ;
-	}
-	cout << "Error DECLARACIONES_GLOBALES \n";
-	exit( 0 );
-}
-void DECLARACION_ESTRUCTURA( ) {
-	if( token == "estructura" ) {
-		match( "estructura" );
-		match( "id" );
-		DATOS_ESTRUCTURA( );
-		match( "fin_estructura" );
-		return ;
-	}
-	cout << "Error DECLARACION_ESTRUCTURA \n";
-	exit( 0 );
-}
-void DECLARACION_FUNCION( ) {
-	if( token == "funcion" ) {
-		match( "funcion" );
-		TIPO_DATO( );
-		match( "id" );
-		match( "tk_par_izq" );
-		PARAMETROS_FUNCION( );
-		match( "tk_par_der" );
-		match( "hacer" );
-		BLOQUE_INSTRUCCIONES_FUNCION( );
-		match( "fin_funcion" );
-		return ;
-	}
-	cout << "Error DECLARACION_FUNCION \n";
-	exit( 0 );
-}
-void DECLARACION_O_ASIGNACION_O_LLAMADO( ) {
-	if( token == "booleano" || token == "cadena" || token == "caracter" || token == "entero" || token == "real" ) {
-		TIPO_DATO_PRIMITIVO( );
-		DECLARACION_VARIABLE( );
-		match( "tk_pyc" );
-		return ;
-	}
-	if( token == "id" ) {
-		match( "id" );
-		COMPLEMENTO_DECLARACION_O_ASIGNACION_O_LLAMADO( );
-		match( "tk_pyc" );
-		return ;
-	}
-	cout << "Error DECLARACION_O_ASIGNACION_O_LLAMADO \n";
-	exit( 0 );
-}
-void DECLARACION_VARIABLE( ) {
-	if( token == "id" ) {
-		VARIABLE( );
-		MAS_DECLARACION_VARIABLE( );
-		return ;
-	}
-	cout << "Error DECLARACION_VARIABLE \n";
-	exit( 0 );
-}
-void DECLARACION_VARIABLES_GLOBALES( ) {
-	if( token == "booleano" || token == "cadena" || token == "caracter" || token == "entero" || token == "id" || token == "real" ) {
-		TIPO_DATO( );
-		DECLARACION_VARIABLE( );
-		match( "tk_pyc" );
-		return ;
-	}
-	cout << "Error DECLARACION_VARIABLES_GLOBALES \n";
-	exit( 0 );
-}
-void EXPRESION( ) {
-	if( token == "falso" || token == "id" || token == "tk_cadena" || token == "tk_caracter" || token == "tk_entero" || token == "tk_mas" || token == "tk_menos" || token == "tk_neg" || token == "tk_par_izq" || token == "tk_real" || token == "verdadero" ) {
-		TERMINO( );
-		COMPLEMENTO_EXPRESION( );
-		return ;
-	}
-	cout << "Error EXPRESION \n";
-	exit( 0 );
-}
-void EXPRESION_1( ) {
-	if( token == "tk_igual" ) {
-		match( "tk_igual" );
-		TERMINO( );
-		COMPLEMENTO_EXPRESION_1_2( );
-		return ;
-	}
-	if( token == "tk_dif" ) {
-		match( "tk_dif" );
-		TERMINO( );
-		COMPLEMENTO_EXPRESION_1_2( );
-		return ;
-	}
-	if( token == "tk_coma" || token == "tk_div" || token == "tk_dosp" || token == "tk_mas" || token == "tk_mayor" || token == "tk_mayor_igual" || token == "tk_menor" || token == "tk_menor_igual" || token == "tk_menos" || token == "tk_mod" || token == "tk_mult" || token == "tk_par_der" || token == "tk_pyc" ) {
-		EXPRESION_2( );
-		return ;
-	}
-	cout << "Error EXPRESION_1 \n";
-	exit( 0 );
-}
-void EXPRESION_2( ) {
-	if( token == "tk_menor" ) {
-		match( "tk_menor" );
-		TERMINO( );
-		COMPLEMENTO_EXPRESION_1_2( );
-		return ;
-	}
-	if( token == "tk_mayor" ) {
-		match( "tk_mayor" );
-		TERMINO( );
-		COMPLEMENTO_EXPRESION_1_2( );
-		return ;
-	}
-	if( token == "tk_menor_igual" ) {
-		match( "tk_menor_igual" );
-		TERMINO( );
-		COMPLEMENTO_EXPRESION_1_2( );
-		return ;
-	}
-	if( token == "tk_mayor_igual" ) {
-		match( "tk_mayor_igual" );
-		TERMINO( );
-		COMPLEMENTO_EXPRESION_1_2( );
-		return ;
-	}
-	if( token == "tk_coma" || token == "tk_div" || token == "tk_dosp" || token == "tk_mas" || token == "tk_menos" || token == "tk_mod" || token == "tk_mult" || token == "tk_par_der" || token == "tk_pyc" ) {
-		EXPRESION_3( );
-		return ;
-	}
-	cout << "Error EXPRESION_2 \n";
-	exit( 0 );
-}
-void EXPRESION_3( ) {
-	if( token == "tk_mas" ) {
-		match( "tk_mas" );
-		TERMINO( );
-		COMPLEMENTO_EXPRESION( );
-		return ;
-	}
-	if( token == "tk_menos" ) {
-		match( "tk_menos" );
-		TERMINO( );
-		COMPLEMENTO_EXPRESION( );
-		return ;
-	}
-	if( token == "tk_coma" || token == "tk_div" || token == "tk_dosp" || token == "tk_mod" || token == "tk_mult" || token == "tk_par_der" || token == "tk_pyc" ) {
-		EXPRESION_4( );
-		return ;
-	}
-	cout << "Error EXPRESION_3 \n";
-	exit( 0 );
-}
-void EXPRESION_4( ) {
-	if( token == "tk_mult" ) {
-		match( "tk_mult" );
-		TERMINO( );
-		COMPLEMENTO_EXPRESION( );
-		return ;
-	}
-	if( token == "tk_mod" ) {
-		match( "tk_mod" );
-		TERMINO( );
-		COMPLEMENTO_EXPRESION( );
-		return ;
-	}
-	if( token == "tk_div" ) {
-		match( "tk_div" );
-		TERMINO( );
-		COMPLEMENTO_EXPRESION( );
-		return ;
-	}
-	if( token == "tk_coma" || token == "tk_dosp" || token == "tk_par_der" || token == "tk_pyc" ) {
-		return ;
-	}
-	cout << "Error EXPRESION_4 \n";
-	exit( 0 );
-}
-void FUNCION_PRINCIPAL( ) {
-	if( token == "funcion_principal" ) {
-		match( "funcion_principal" );
-		BLOQUE_INSTRUCCIONES( );
-		match( "fin_principal" );
-		return ;
-	}
-	cout << "Error FUNCION_PRINCIPAL \n";
-	exit( 0 );
-}
-void IDENTIFICADOR( ) {
-	if( token == "id" ) {
-		match( "id" );
-		COMPLEMENTO_IDENTIFICADOR( );
-		return ;
-	}
-	cout << "Error IDENTIFICADOR \n";
-	exit( 0 );
-}
-void IDENTIFICADOR_DATO_ESTRUCTURA( ) {
-	if( token == "tk_punto" ) {
-		match( "tk_punto" );
-		match( "id" );
-		COMPLEMENTO_IDENTIFICADOR_DATO_ESTRUCTURA( );
-		return ;
-	}
-	cout << "Error IDENTIFICADOR_DATO_ESTRUCTURA \n";
-	exit( 0 );
-}
-void IDENTIFICADOR_O_LLAMADO( ) {
-	if( token == "id" ) {
-		match( "id" );
-		COMPLEMENTO_IDENTIFICADOR_O_LLAMADO( );
-		return ;
-	}
-	cout << "Error IDENTIFICADOR_O_LLAMADO \n";
-	exit( 0 );
-}
-void IMPRIMIR( ) {
-	if( token == "imprimir" ) {
-		match( "imprimir" );
-		match( "tk_par_izq" );
-		PARAMETROS_IMPRIMIR( );
-		match( "tk_par_der" );
-		match( "tk_pyc" );
-		return ;
-	}
-	cout << "Error IMPRIMIR \n";
-	exit( 0 );
-}
-void LEER( ) {
-	if( token == "leer" ) {
-		match( "leer" );
-		match( "tk_par_izq" );
-		IDENTIFICADOR( );
-		match( "tk_par_der" );
-		match( "tk_pyc" );
-		return ;
-	}
-	cout << "Error LEER \n";
-	exit( 0 );
-}
-void LLAMADO_FUNCION( ) {
-	if( token == "tk_par_izq" ) {
-		match( "tk_par_izq" );
-		PARAMETROS_LLAMADO_FUNCION( );
-		match( "tk_par_der" );
-		return ;
-	}
-	cout << "Error LLAMADO_FUNCION \n";
-	exit( 0 );
-}
-void MAS_DECLARACION_VARIABLE( ) {
-	if( token == "tk_coma" ) {
-		match( "tk_coma" );
-		VARIABLE( );
-		MAS_DECLARACION_VARIABLE( );
-		return ;
-	}
-	if( token == "tk_pyc" ) {
-		return ;
-	}
-	cout << "Error MAS_DECLARACION_VARIABLE \n";
-	exit( 0 );
-}
-void MAS_PARAMETROS_FUNCION( ) {
-	if( token == "tk_coma" ) {
-		match( "tk_coma" );
-		TIPO_DATO( );
-		match( "id" );
-		MAS_PARAMETROS_FUNCION( );
-		return ;
-	}
-	if( token == "tk_par_der" ) {
-		return ;
-	}
-	cout << "Error MAS_PARAMETROS_FUNCION \n";
-	exit( 0 );
-}
-void MAS_PARAMETROS_IMPRIMIR( ) {
-	if( token == "tk_coma" ) {
-		match( "tk_coma" );
-		EXPRESION( );
-		MAS_PARAMETROS_IMPRIMIR( );
-		return ;
-	}
-	if( token == "tk_par_der" ) {
-		return ;
-	}
-	cout << "Error MAS_PARAMETROS_IMPRIMIR \n";
-	exit( 0 );
-}
-void MAS_PARAMETROS_LLAMADO_FUNCION( ) {
-	if( token == "tk_coma" ) {
-		match( "tk_coma" );
-		EXPRESION( );
-		MAS_PARAMETROS_LLAMADO_FUNCION( );
-		return ;
-	}
-	if( token == "tk_par_der" ) {
-		return ;
-	}
-	cout << "Error MAS_PARAMETROS_LLAMADO_FUNCION \n";
-	exit( 0 );
-}
-void PARAMETROS_FUNCION( ) {
-	if( token == "booleano" || token == "cadena" || token == "caracter" || token == "entero" || token == "id" || token == "real" ) {
-		TIPO_DATO( );
-		match( "id" );
-		MAS_PARAMETROS_FUNCION( );
-		return ;
-	}
-	if( token == "tk_par_der" ) {
-		return ;
-	}
-	cout << "Error PARAMETROS_FUNCION \n";
-	exit( 0 );
-}
-void PARAMETROS_IMPRIMIR( ) {
-	if( token == "falso" || token == "id" || token == "tk_cadena" || token == "tk_caracter" || token == "tk_entero" || token == "tk_mas" || token == "tk_menos" || token == "tk_neg" || token == "tk_par_izq" || token == "tk_real" || token == "verdadero" ) {
-		EXPRESION( );
-		MAS_PARAMETROS_IMPRIMIR( );
-		return ;
-	}
-	cout << "Error PARAMETROS_IMPRIMIR \n";
-	exit( 0 );
-}
-void PARAMETROS_LLAMADO_FUNCION( ) {
-	if( token == "falso" || token == "id" || token == "tk_cadena" || token == "tk_caracter" || token == "tk_entero" || token == "tk_mas" || token == "tk_menos" || token == "tk_neg" || token == "tk_par_izq" || token == "tk_real" || token == "verdadero" ) {
-		EXPRESION( );
-		MAS_PARAMETROS_LLAMADO_FUNCION( );
-		return ;
-	}
-	if( token == "tk_par_der" ) {
-		return ;
-	}
-	cout << "Error PARAMETROS_LLAMADO_FUNCION \n";
-	exit( 0 );
-}
-void PROGRAMA( ) {
-	if( token == "booleano" || token == "cadena" || token == "caracter" || token == "entero" || token == "estructura" || token == "funcion" || token == "funcion_principal" || token == "id" || token == "real" ) {
-		DECLARACIONES_GLOBALES( );
-		FUNCION_PRINCIPAL( );
-		DECLARACIONES_GLOBALES( );
-		return ;
-	}
-	cout << "Error PROGRAMA \n";
-	exit( 0 );
-}
-void RETORNAR( ) {
-	if( token == "retornar" ) {
-		match( "retornar" );
-		EXPRESION( );
-		match( "tk_pyc" );
-		return ;
-	}
-	cout << "Error RETORNAR \n";
-	exit( 0 );
-}
-void ROMPER( ) {
-	if( token == "romper" ) {
-		match( "romper" );
-		match( "tk_pyc" );
-		return ;
-	}
-	cout << "Error ROMPER \n";
-	exit( 0 );
-}
-void SELECCIONAR( ) {
-	if( token == "seleccionar" ) {
-		match( "seleccionar" );
-		match( "tk_par_izq" );
-		EXPRESION( );
-		match( "tk_par_der" );
-		match( "entre" );
-		BLOQUE_SELECCIONAR( );
-		match( "fin_seleccionar" );
-		return ;
-	}
-	cout << "Error SELECCIONAR \n";
-	exit( 0 );
-}
-void SELECCIONAR_FUNCION( ) {
-	if( token == "seleccionar" ) {
-		match( "seleccionar" );
-		match( "tk_par_izq" );
-		EXPRESION( );
-		match( "tk_par_der" );
-		match( "entre" );
-		BLOQUE_SELECCIONAR_FUNCION( );
-		match( "fin_seleccionar" );
-		return ;
-	}
-	cout << "Error SELECCIONAR_FUNCION \n";
-	exit( 0 );
-}
-void TERMINO( ) {
-	if( token == "tk_par_izq" ) {
-		match( "tk_par_izq" );
-		EXPRESION( );
-		match( "tk_par_der" );
-		return ;
-	}
-	if( token == "tk_cadena" || token == "tk_caracter" || token == "tk_entero" || token == "tk_real" ) {
-		CONSTANTE( );
-		return ;
-	}
-	if( token == "id" ) {
-		IDENTIFICADOR_O_LLAMADO( );
-		return ;
-	}
-	if( token == "verdadero" ) {
-		match( "verdadero" );
-		return ;
-	}
-	if( token == "falso" ) {
-		match( "falso" );
-		return ;
-	}
-	if( token == "tk_menos" ) {
-		match( "tk_menos" );
-		TERMINO( );
-		return ;
-	}
-	if( token == "tk_mas" ) {
-		match( "tk_mas" );
-		TERMINO( );
-		return ;
-	}
-	if( token == "tk_neg" ) {
-		match( "tk_neg" );
-		TERMINO( );
-		return ;
-	}
-	cout << "Error TERMINO \n";
-	exit( 0 );
-}
-void TIPO_DATO( ) {
-	if( token == "booleano" || token == "cadena" || token == "caracter" || token == "entero" || token == "real" ) {
-		TIPO_DATO_PRIMITIVO( );
-		return ;
-	}
-	if( token == "id" ) {
-		match( "id" );
-		return ;
-	}
-	cout << "Error TIPO_DATO \n";
-	exit( 0 );
-}
-void TIPO_DATO_PRIMITIVO( ) {
-	if( token == "entero" ) {
-		match( "entero" );
-		return ;
-	}
-	if( token == "real" ) {
-		match( "real" );
-		return ;
-	}
-	if( token == "caracter" ) {
-		match( "caracter" );
-		return ;
-	}
-	if( token == "cadena" ) {
-		match( "cadena" );
-		return ;
-	}
-	if( token == "booleano" ) {
-		match( "booleano" );
-		return ;
-	}
-	cout << "Error TIPO_DATO_PRIMITIVO \n";
-	exit( 0 );
-}
-void VARIABLE( ) {
-	if( token == "id" ) {
-		match( "id" );
-		ASIGNACION_VARIABLE( );
-		return ;
-	}
-	cout << "Error VARIABLE \n";
-	exit( 0 );
+  valid_symbols = "+-*/%=<>&|!:'\";,().";
+
+  token_symbol["tk_mas"] = pis(0, "+"); token_symbol["tk_menos"] = pis(1, "-"); token_symbol["tk_mult"] = pis(2, "*");
+  token_symbol["tk_div"] = pis(3, "/"); token_symbol["tk_mod"] = pis(4, "%"); token_symbol["tk_asig"] = pis(5, "=");
+  token_symbol["tk_menor"] = pis(6, "<"); token_symbol["tk_mayor"] = pis(7, ">"); token_symbol["tk_menor_igual"] = pis(8, "<=");
+  token_symbol["tk_mayor_igual"] = pis(9, ">="); token_symbol["tk_igual"] = pis(10, "=="); token_symbol["tk_y"] = pis(11, "&&");
+  token_symbol["tk_o"] = pis(12, "||"); token_symbol["tk_dif"] = pis(13, "!="); token_symbol["tk_neg"] = pis(14, "!");
+  token_symbol["tk_dosp"] = pis(15, ":"); token_symbol["tk_comilla_sen"] = pis(16, "'"); token_symbol["tk_comilla_dob"] = pis(17, "\"");
+  token_symbol["tk_pyc"] = pis(18, ";"); token_symbol["tk_coma"] = pis(19, ","); token_symbol["tk_punto"] = pis(20, ".");
+  token_symbol["tk_par_izq"] = pis(21, "("); token_symbol["tk_par_der"] = pis(22, ")"); token_symbol["id"] = pis(23, "identificador");
+  token_symbol["tk_entero"] = pis(24, "valor_entero"); token_symbol["tk_real"] = pis(25, "valor_real"); token_symbol["tk_caracter"] = pis(26, "valor_caracter");
+  token_symbol["tk_cadena"] = pis(27, "valor_cadena"); token_symbol["funcion_principal"] = pis(28, "funcion_principal"); token_symbol["fin_principal"] = pis(29, "fin_principal");
+  token_symbol["leer"] = pis(30, "leer"); token_symbol["imprimir"] = pis(31, "imprimir"); token_symbol["booleano"] = pis(32, "booleano");
+  token_symbol["caracter"] = pis(33, "caracter"); token_symbol["entero"] = pis(34, "entero"); token_symbol["real"] = pis(35, "real");
+  token_symbol["cadena"] = pis(36, "cadena"); token_symbol["si"] = pis(37, "si"); token_symbol["entonces"] = pis(38, "entonces");
+  token_symbol["fin_si"] = pis(39, "fin_si"); token_symbol["si_no"] = pis(40, "si_no"); token_symbol["mientras"] = pis(41, "mientras");
+  token_symbol["hacer"] = pis(42, "hacer"); token_symbol["fin_mientras"] = pis(43, "fin_mientras"); token_symbol["para"] = pis(44, "para");
+  token_symbol["fin_para"] = pis(45, "fin_para"); token_symbol["seleccionar"] = pis(46, "seleccionar"); token_symbol["entre"] = pis(47, "entre");
+  token_symbol["caso"] = pis(48, "caso"); token_symbol["romper"] = pis(49, "romper"); token_symbol["defecto"] = pis(50, "defecto");
+  token_symbol["fin_seleccionar"] = pis(51, "fin_seleccionar"); token_symbol["estructura"] = pis(52, "estructura"); token_symbol["fin_estructura"] = pis(53, "fin_estructura");
+  token_symbol["funcion"] = pis(54, "funcion"); token_symbol["fin_funcion"] = pis(55, "fin_funcion"); token_symbol["retornar"] = pis(56, "retornar");
+  token_symbol["falso"] = pis(57, "falso"); token_symbol["verdadero"] = pis(58, "verdadero"); token_symbol["EOF"] = pis(59, "EOF");
+
+  grammar.PB( "PROGRAMA -> DECLARACIONES_GLOBALES FUNCION_PRINCIPAL DECLARACIONES_GLOBALES" );
+  grammar.PB( "DECLARACIONES_GLOBALES -> DECLARACION_VARIABLES_GLOBALES DECLARACIONES_GLOBALES" );
+  grammar.PB( "DECLARACIONES_GLOBALES -> DECLARACION_FUNCION DECLARACIONES_GLOBALES" );
+  grammar.PB( "DECLARACIONES_GLOBALES -> DECLARACION_ESTRUCTURA DECLARACIONES_GLOBALES" );
+  grammar.PB( "DECLARACIONES_GLOBALES -> epsilon" );
+  grammar.PB( "FUNCION_PRINCIPAL -> funcion_principal BLOQUE_INSTRUCCIONES fin_principal" );
+  grammar.PB( "DECLARACION_FUNCION -> funcion TIPO_DATO id tk_par_izq PARAMETROS_FUNCION tk_par_der hacer BLOQUE_INSTRUCCIONES_FUNCION fin_funcion" );
+  grammar.PB( "PARAMETROS_FUNCION -> TIPO_DATO id MAS_PARAMETROS_FUNCION" );
+  grammar.PB( "PARAMETROS_FUNCION -> epsilon" );
+  grammar.PB( "MAS_PARAMETROS_FUNCION -> tk_coma TIPO_DATO id MAS_PARAMETROS_FUNCION" );
+  grammar.PB( "MAS_PARAMETROS_FUNCION -> epsilon" );
+  grammar.PB( "BLOQUE_INSTRUCCIONES_FUNCION -> LEER BLOQUE_INSTRUCCIONES_FUNCION" );
+  grammar.PB( "BLOQUE_INSTRUCCIONES_FUNCION -> IMPRIMIR BLOQUE_INSTRUCCIONES_FUNCION" );
+  grammar.PB( "BLOQUE_INSTRUCCIONES_FUNCION -> DECLARACION_O_ASIGNACION_O_LLAMADO BLOQUE_INSTRUCCIONES_FUNCION" );
+  grammar.PB( "BLOQUE_INSTRUCCIONES_FUNCION -> CONDICIONAL_SI_FUNCION BLOQUE_INSTRUCCIONES_FUNCION" );
+  grammar.PB( "BLOQUE_INSTRUCCIONES_FUNCION -> SELECCIONAR_FUNCION BLOQUE_INSTRUCCIONES_FUNCION" );
+  grammar.PB( "BLOQUE_INSTRUCCIONES_FUNCION -> CICLO_MIENTRAS_FUNCION BLOQUE_INSTRUCCIONES_FUNCION" );
+  grammar.PB( "BLOQUE_INSTRUCCIONES_FUNCION -> CICLO_HACER_MIENTRAS_FUNCION BLOQUE_INSTRUCCIONES_FUNCION" );
+  grammar.PB( "BLOQUE_INSTRUCCIONES_FUNCION -> CICLO_PARA_FUNCION BLOQUE_INSTRUCCIONES_FUNCION" );
+  grammar.PB( "BLOQUE_INSTRUCCIONES_FUNCION -> RETORNAR BLOQUE_INSTRUCCIONES_FUNCION" );
+  grammar.PB( "BLOQUE_INSTRUCCIONES_FUNCION -> ROMPER BLOQUE_INSTRUCCIONES_FUNCION" );
+  grammar.PB( "BLOQUE_INSTRUCCIONES_FUNCION -> epsilon" );
+  grammar.PB( "DECLARACION_ESTRUCTURA -> estructura id DATOS_ESTRUCTURA fin_estructura" );
+  grammar.PB( "DATOS_ESTRUCTURA -> TIPO_DATO DECLARACION_VARIABLE tk_pyc COMPLEMENTO_DATOS_ESTRUCTURA" );
+  grammar.PB( "COMPLEMENTO_DATOS_ESTRUCTURA -> TIPO_DATO DECLARACION_VARIABLE tk_pyc COMPLEMENTO_DATOS_ESTRUCTURA" );
+  grammar.PB( "COMPLEMENTO_DATOS_ESTRUCTURA -> epsilon" );
+  grammar.PB( "DECLARACION_VARIABLES_GLOBALES -> TIPO_DATO DECLARACION_VARIABLE tk_pyc" );
+  grammar.PB( "CONDICIONAL_SI_FUNCION -> si tk_par_izq EXPRESION tk_par_der entonces BLOQUE_INSTRUCCIONES_FUNCION COMPLEMENTO_CONDICIONAL_SI_FUNCION" );
+  grammar.PB( "COMPLEMENTO_CONDICIONAL_SI_FUNCION -> si_no BLOQUE_INSTRUCCIONES_FUNCION fin_si" );
+  grammar.PB( "COMPLEMENTO_CONDICIONAL_SI_FUNCION -> fin_si" );
+  grammar.PB( "SELECCIONAR_FUNCION -> seleccionar tk_par_izq EXPRESION tk_par_der entre BLOQUE_SELECCIONAR_FUNCION fin_seleccionar" );
+  grammar.PB( "BLOQUE_SELECCIONAR_FUNCION -> caso EXPRESION tk_dosp BLOQUE_INSTRUCCIONES_FUNCION COMPLEMENTO_BLOQUE_SELECCIONAR_FUNCION" );
+  grammar.PB( "BLOQUE_SELECCIONAR_FUNCION -> defecto tk_dosp BLOQUE_INSTRUCCIONES_FUNCION" );
+  grammar.PB( "COMPLEMENTO_BLOQUE_SELECCIONAR_FUNCION -> caso EXPRESION tk_dosp BLOQUE_INSTRUCCIONES_FUNCION COMPLEMENTO_BLOQUE_SELECCIONAR_FUNCION" );
+  grammar.PB( "COMPLEMENTO_BLOQUE_SELECCIONAR_FUNCION -> defecto tk_dosp BLOQUE_INSTRUCCIONES_FUNCION" );
+  grammar.PB( "COMPLEMENTO_BLOQUE_SELECCIONAR_FUNCION -> epsilon" );
+  grammar.PB( "CICLO_MIENTRAS_FUNCION -> mientras tk_par_izq EXPRESION tk_par_der hacer BLOQUE_INSTRUCCIONES_FUNCION fin_mientras" );
+  grammar.PB( "CICLO_HACER_MIENTRAS_FUNCION -> hacer BLOQUE_INSTRUCCIONES_HACER_MIENTRAS_FUNCION" );
+  grammar.PB( "BLOQUE_INSTRUCCIONES_HACER_MIENTRAS_FUNCION -> COMPLEMENTO_BLOQUE_INSTRUCCIONES_HACER_MIENTRAS_FUNCION BLOQUE_INSTRUCCIONES_HACER_MIENTRAS_FUNCION" );
+  grammar.PB( "BLOQUE_INSTRUCCIONES_HACER_MIENTRAS_FUNCION -> mientras tk_par_izq EXPRESION tk_par_der AUXILIAR_BLOQUE_INSTRUCCIONES_HACER_MIENTRAS_FUNCION" );
+  grammar.PB( "AUXILIAR_BLOQUE_INSTRUCCIONES_HACER_MIENTRAS_FUNCION -> hacer BLOQUE_INSTRUCCIONES_FUNCION fin_mientras BLOQUE_INSTRUCCIONES_HACER_MIENTRAS_FUNCION" );
+  grammar.PB( "AUXILIAR_BLOQUE_INSTRUCCIONES_HACER_MIENTRAS_FUNCION -> tk_pyc" );
+  grammar.PB( "COMPLEMENTO_BLOQUE_INSTRUCCIONES_HACER_MIENTRAS_FUNCION -> LEER" );
+  grammar.PB( "COMPLEMENTO_BLOQUE_INSTRUCCIONES_HACER_MIENTRAS_FUNCION -> IMPRIMIR" );
+  grammar.PB( "COMPLEMENTO_BLOQUE_INSTRUCCIONES_HACER_MIENTRAS_FUNCION -> DECLARACION_O_ASIGNACION_O_LLAMADO" );
+  grammar.PB( "COMPLEMENTO_BLOQUE_INSTRUCCIONES_HACER_MIENTRAS_FUNCION -> CONDICIONAL_SI_FUNCION" );
+  grammar.PB( "COMPLEMENTO_BLOQUE_INSTRUCCIONES_HACER_MIENTRAS_FUNCION -> SELECCIONAR_FUNCION" );
+  grammar.PB( "COMPLEMENTO_BLOQUE_INSTRUCCIONES_HACER_MIENTRAS_FUNCION -> CICLO_HACER_MIENTRAS_FUNCION" );
+  grammar.PB( "COMPLEMENTO_BLOQUE_INSTRUCCIONES_HACER_MIENTRAS_FUNCION -> CICLO_PARA_FUNCION" );
+  grammar.PB( "COMPLEMENTO_BLOQUE_INSTRUCCIONES_HACER_MIENTRAS_FUNCION -> RETORNAR" );
+  grammar.PB( "COMPLEMENTO_BLOQUE_INSTRUCCIONES_HACER_MIENTRAS_FUNCION -> ROMPER" );
+  grammar.PB( "CICLO_PARA_FUNCION  -> para tk_par_izq CICLO_PARA_FUNCION_1 tk_pyc EXPRESION tk_pyc EXPRESION tk_par_der hacer BLOQUE_INSTRUCCIONES_FUNCION fin_para" );
+  grammar.PB( "CICLO_PARA_FUNCION_1 -> TIPO_DATO_PRIMITIVO id tk_asig EXPRESION" );
+  grammar.PB( "CICLO_PARA_FUNCION_1 -> id COMPLEMENTO_CICLO_PARA_FUNCION_1" );
+  grammar.PB( "COMPLEMENTO_CICLO_PARA_FUNCION_1 -> id tk_asig EXPRESION" );
+  grammar.PB( "COMPLEMENTO_CICLO_PARA_FUNCION_1 -> tk_asig EXPRESION" );
+  grammar.PB( "ROMPER -> romper tk_pyc" );
+  grammar.PB( "RETORNAR -> retornar EXPRESION tk_pyc" );
+  grammar.PB( "DECLARACION_O_ASIGNACION_O_LLAMADO -> TIPO_DATO_PRIMITIVO DECLARACION_VARIABLE tk_pyc" );
+  grammar.PB( "DECLARACION_O_ASIGNACION_O_LLAMADO -> id COMPLEMENTO_DECLARACION_O_ASIGNACION_O_LLAMADO tk_pyc" );
+  grammar.PB( "COMPLEMENTO_DECLARACION_O_ASIGNACION_O_LLAMADO -> IDENTIFICADOR_DATO_ESTRUCTURA ASIGNACION_VARIABLE" );
+  grammar.PB( "COMPLEMENTO_DECLARACION_O_ASIGNACION_O_LLAMADO -> ASIGNACION_VARIABLE" );
+  grammar.PB( "COMPLEMENTO_DECLARACION_O_ASIGNACION_O_LLAMADO -> LLAMADO_FUNCION" );
+  grammar.PB( "COMPLEMENTO_DECLARACION_O_ASIGNACION_O_LLAMADO -> DECLARACION_VARIABLE" );
+  grammar.PB( "IMPRIMIR -> imprimir tk_par_izq PARAMETROS_IMPRIMIR tk_par_der tk_pyc" );
+  grammar.PB( "PARAMETROS_IMPRIMIR -> EXPRESION MAS_PARAMETROS_IMPRIMIR" );
+  grammar.PB( "MAS_PARAMETROS_IMPRIMIR -> tk_coma EXPRESION MAS_PARAMETROS_IMPRIMIR" );
+  grammar.PB( "MAS_PARAMETROS_IMPRIMIR -> epsilon" );
+  grammar.PB( "LEER -> leer tk_par_izq IDENTIFICADOR tk_par_der tk_pyc" );
+  grammar.PB( "DECLARACION_VARIABLE -> VARIABLE MAS_DECLARACION_VARIABLE" );
+  grammar.PB( "MAS_DECLARACION_VARIABLE -> tk_coma VARIABLE MAS_DECLARACION_VARIABLE" );
+  grammar.PB( "MAS_DECLARACION_VARIABLE -> epsilon" );
+  grammar.PB( "VARIABLE -> id ASIGNACION_VARIABLE" );
+  grammar.PB( "ASIGNACION_VARIABLE -> tk_asig EXPRESION" );
+  grammar.PB( "ASIGNACION_VARIABLE -> epsilon" );
+  grammar.PB( "LLAMADO_FUNCION -> tk_par_izq PARAMETROS_LLAMADO_FUNCION tk_par_der" );
+  grammar.PB( "PARAMETROS_LLAMADO_FUNCION -> EXPRESION MAS_PARAMETROS_LLAMADO_FUNCION" );
+  grammar.PB( "PARAMETROS_LLAMADO_FUNCION -> epsilon" );
+  grammar.PB( "MAS_PARAMETROS_LLAMADO_FUNCION -> tk_coma EXPRESION MAS_PARAMETROS_LLAMADO_FUNCION" );
+  grammar.PB( "MAS_PARAMETROS_LLAMADO_FUNCION -> epsilon" );
+  grammar.PB( "IDENTIFICADOR -> id COMPLEMENTO_IDENTIFICADOR" );
+  grammar.PB( "COMPLEMENTO_IDENTIFICADOR -> tk_punto id COMPLEMENTO_IDENTIFICADOR" );
+  grammar.PB( "COMPLEMENTO_IDENTIFICADOR -> epsilon" );
+  grammar.PB( "IDENTIFICADOR_DATO_ESTRUCTURA -> tk_punto id COMPLEMENTO_IDENTIFICADOR_DATO_ESTRUCTURA" );
+  grammar.PB( "COMPLEMENTO_IDENTIFICADOR_DATO_ESTRUCTURA -> tk_punto id COMPLEMENTO_IDENTIFICADOR_DATO_ESTRUCTURA" );
+  grammar.PB( "COMPLEMENTO_IDENTIFICADOR_DATO_ESTRUCTURA -> epsilon" );
+  grammar.PB( "TIPO_DATO  -> TIPO_DATO_PRIMITIVO" );
+  grammar.PB( "TIPO_DATO  -> id" );
+  grammar.PB( "TIPO_DATO_PRIMITIVO -> entero" );
+  grammar.PB( "TIPO_DATO_PRIMITIVO -> real" );
+  grammar.PB( "TIPO_DATO_PRIMITIVO -> caracter" );
+  grammar.PB( "TIPO_DATO_PRIMITIVO -> cadena" );
+  grammar.PB( "TIPO_DATO_PRIMITIVO -> booleano" );
+  grammar.PB( "BLOQUE_INSTRUCCIONES -> LEER BLOQUE_INSTRUCCIONES" );
+  grammar.PB( "BLOQUE_INSTRUCCIONES -> IMPRIMIR BLOQUE_INSTRUCCIONES" );
+  grammar.PB( "BLOQUE_INSTRUCCIONES -> DECLARACION_O_ASIGNACION_O_LLAMADO BLOQUE_INSTRUCCIONES" );
+  grammar.PB( "BLOQUE_INSTRUCCIONES -> CONDICIONAL_SI BLOQUE_INSTRUCCIONES" );
+  grammar.PB( "BLOQUE_INSTRUCCIONES -> SELECCIONAR BLOQUE_INSTRUCCIONES" );
+  grammar.PB( "BLOQUE_INSTRUCCIONES -> CICLO_MIENTRAS BLOQUE_INSTRUCCIONES" );
+  grammar.PB( "BLOQUE_INSTRUCCIONES -> CICLO_HACER_MIENTRAS BLOQUE_INSTRUCCIONES" );
+  grammar.PB( "BLOQUE_INSTRUCCIONES -> CICLO_PARA BLOQUE_INSTRUCCIONES" );
+  grammar.PB( "BLOQUE_INSTRUCCIONES -> ROMPER BLOQUE_INSTRUCCIONES" );
+  grammar.PB( "BLOQUE_INSTRUCCIONES -> epsilon" );
+  grammar.PB( "CONDICIONAL_SI -> si tk_par_izq EXPRESION tk_par_der entonces BLOQUE_INSTRUCCIONES COMPLEMENTO_CONDICIONAL_SI" );
+  grammar.PB( "COMPLEMENTO_CONDICIONAL_SI -> si_no BLOQUE_INSTRUCCIONES fin_si" );
+  grammar.PB( "COMPLEMENTO_CONDICIONAL_SI -> fin_si" );
+  grammar.PB( "SELECCIONAR -> seleccionar tk_par_izq EXPRESION tk_par_der entre BLOQUE_SELECCIONAR fin_seleccionar" );
+  grammar.PB( "BLOQUE_SELECCIONAR -> caso EXPRESION tk_dosp BLOQUE_INSTRUCCIONES COMPLEMENTO_BLOQUE_SELECCIONAR" );
+  grammar.PB( "BLOQUE_SELECCIONAR -> defecto tk_dosp BLOQUE_INSTRUCCIONES" );
+  grammar.PB( "COMPLEMENTO_BLOQUE_SELECCIONAR -> caso EXPRESION tk_dosp BLOQUE_INSTRUCCIONES COMPLEMENTO_BLOQUE_SELECCIONAR" );
+  grammar.PB( "COMPLEMENTO_BLOQUE_SELECCIONAR -> defecto tk_dosp BLOQUE_INSTRUCCIONES" );
+  grammar.PB( "COMPLEMENTO_BLOQUE_SELECCIONAR -> epsilon" );
+  grammar.PB( "CICLO_MIENTRAS -> mientras tk_par_izq EXPRESION tk_par_der hacer BLOQUE_INSTRUCCIONES fin_mientras" );
+  grammar.PB( "CICLO_HACER_MIENTRAS -> hacer BLOQUE_INSTRUCCIONES_HACER_MIENTRAS" );
+  grammar.PB( "BLOQUE_INSTRUCCIONES_HACER_MIENTRAS -> COMPLEMENTO_BLOQUE_INSTRUCCIONES_HACER_MIENTRAS BLOQUE_INSTRUCCIONES_HACER_MIENTRAS" );
+  grammar.PB( "BLOQUE_INSTRUCCIONES_HACER_MIENTRAS -> mientras tk_par_izq EXPRESION tk_par_der AUXILIAR_BLOQUE_INSTRUCCIONES_HACER_MIENTRAS" );
+  grammar.PB( "AUXILIAR_BLOQUE_INSTRUCCIONES_HACER_MIENTRAS -> hacer BLOQUE_INSTRUCCIONES fin_mientras BLOQUE_INSTRUCCIONES_HACER_MIENTRAS" );
+  grammar.PB( "AUXILIAR_BLOQUE_INSTRUCCIONES_HACER_MIENTRAS -> tk_pyc" );
+  grammar.PB( "COMPLEMENTO_BLOQUE_INSTRUCCIONES_HACER_MIENTRAS -> LEER" );
+  grammar.PB( "COMPLEMENTO_BLOQUE_INSTRUCCIONES_HACER_MIENTRAS -> IMPRIMIR" );
+  grammar.PB( "COMPLEMENTO_BLOQUE_INSTRUCCIONES_HACER_MIENTRAS -> DECLARACION_O_ASIGNACION_O_LLAMADO" );
+  grammar.PB( "COMPLEMENTO_BLOQUE_INSTRUCCIONES_HACER_MIENTRAS -> CONDICIONAL_SI" );
+  grammar.PB( "COMPLEMENTO_BLOQUE_INSTRUCCIONES_HACER_MIENTRAS -> SELECCIONAR" );
+  grammar.PB( "COMPLEMENTO_BLOQUE_INSTRUCCIONES_HACER_MIENTRAS -> CICLO_HACER_MIENTRAS" );
+  grammar.PB( "COMPLEMENTO_BLOQUE_INSTRUCCIONES_HACER_MIENTRAS -> CICLO_PARA" );
+  grammar.PB( "COMPLEMENTO_BLOQUE_INSTRUCCIONES_HACER_MIENTRAS -> ROMPER" );
+  grammar.PB( "CICLO_PARA  -> para tk_par_izq CICLO_PARA_1 tk_pyc EXPRESION tk_pyc EXPRESION tk_par_der hacer BLOQUE_INSTRUCCIONES fin_para" );
+  grammar.PB( "CICLO_PARA_1 -> TIPO_DATO_PRIMITIVO id tk_asig EXPRESION" );
+  grammar.PB( "CICLO_PARA_1 -> id COMPLEMENTO_CICLO_PARA_1" );
+  grammar.PB( "COMPLEMENTO_CICLO_PARA_1 -> id tk_asig EXPRESION" );
+  grammar.PB( "COMPLEMENTO_CICLO_PARA_1 -> tk_asig EXPRESION" );
+  grammar.PB( "EXPRESION  -> TERMINO COMPLEMENTO_EXPRESION" );
+  grammar.PB( "COMPLEMENTO_EXPRESION -> tk_y TERMINO COMPLEMENTO_EXPRESION" );
+  grammar.PB( "COMPLEMENTO_EXPRESION -> tk_o TERMINO COMPLEMENTO_EXPRESION" );
+  grammar.PB( "COMPLEMENTO_EXPRESION -> EXPRESION_1" );
+  grammar.PB( "EXPRESION_1 -> tk_igual TERMINO COMPLEMENTO_EXPRESION_1_2" );
+  grammar.PB( "EXPRESION_1 -> tk_dif TERMINO COMPLEMENTO_EXPRESION_1_2" );
+  grammar.PB( "EXPRESION_1 -> EXPRESION_2" );
+  grammar.PB( "EXPRESION_2 -> tk_menor TERMINO COMPLEMENTO_EXPRESION_1_2" );
+  grammar.PB( "EXPRESION_2 -> tk_mayor TERMINO COMPLEMENTO_EXPRESION_1_2" );
+  grammar.PB( "EXPRESION_2 -> tk_menor_igual TERMINO COMPLEMENTO_EXPRESION_1_2" );
+  grammar.PB( "EXPRESION_2 -> tk_mayor_igual TERMINO COMPLEMENTO_EXPRESION_1_2" );
+  grammar.PB( "EXPRESION_2 -> EXPRESION_3" );
+  grammar.PB( "COMPLEMENTO_EXPRESION_1_2 -> tk_y TERMINO COMPLEMENTO_EXPRESION" );
+  grammar.PB( "COMPLEMENTO_EXPRESION_1_2 -> tk_o TERMINO COMPLEMENTO_EXPRESION" );
+  grammar.PB( "COMPLEMENTO_EXPRESION_1_2 -> tk_mas TERMINO COMPLEMENTO_EXPRESION" );
+  grammar.PB( "COMPLEMENTO_EXPRESION_1_2 -> tk_menos TERMINO COMPLEMENTO_EXPRESION" );
+  grammar.PB( "COMPLEMENTO_EXPRESION_1_2 -> tk_mult TERMINO COMPLEMENTO_EXPRESION" );
+  grammar.PB( "COMPLEMENTO_EXPRESION_1_2 -> tk_mod TERMINO COMPLEMENTO_EXPRESION" );
+  grammar.PB( "COMPLEMENTO_EXPRESION_1_2 -> tk_div TERMINO COMPLEMENTO_EXPRESION" );
+  grammar.PB( "COMPLEMENTO_EXPRESION_1_2 -> epsilon" );
+  grammar.PB( "EXPRESION_3 -> tk_mas TERMINO COMPLEMENTO_EXPRESION" );
+  grammar.PB( "EXPRESION_3 -> tk_menos TERMINO COMPLEMENTO_EXPRESION" );
+  grammar.PB( "EXPRESION_3 -> EXPRESION_4" );
+  grammar.PB( "EXPRESION_4 -> tk_mult TERMINO COMPLEMENTO_EXPRESION" );
+  grammar.PB( "EXPRESION_4 -> tk_mod TERMINO COMPLEMENTO_EXPRESION" );
+  grammar.PB( "EXPRESION_4 -> tk_div TERMINO COMPLEMENTO_EXPRESION" );
+  grammar.PB( "EXPRESION_4 -> epsilon" );
+  grammar.PB( "TERMINO -> tk_par_izq EXPRESION tk_par_der" );
+  grammar.PB( "TERMINO -> CONSTANTE" );
+  grammar.PB( "TERMINO -> IDENTIFICADOR_O_LLAMADO" );
+  grammar.PB( "TERMINO -> verdadero" );
+  grammar.PB( "TERMINO -> falso" );
+  grammar.PB( "TERMINO -> tk_menos TERMINO" );
+  grammar.PB( "TERMINO -> tk_mas TERMINO" );
+  grammar.PB( "TERMINO -> tk_neg TERMINO" );
+  grammar.PB( "IDENTIFICADOR_O_LLAMADO -> id COMPLEMENTO_IDENTIFICADOR_O_LLAMADO" );
+  grammar.PB( "COMPLEMENTO_IDENTIFICADOR_O_LLAMADO -> LLAMADO_FUNCION" );
+  grammar.PB( "COMPLEMENTO_IDENTIFICADOR_O_LLAMADO -> IDENTIFICADOR_DATO_ESTRUCTURA" );
+  grammar.PB( "COMPLEMENTO_IDENTIFICADOR_O_LLAMADO -> epsilon" );
+  grammar.PB( "CONSTANTE -> tk_entero" );
+  grammar.PB( "CONSTANTE -> tk_real" );
+  grammar.PB( "CONSTANTE -> tk_caracter" );
+  grammar.PB( "CONSTANTE -> tk_cadena" );
+
+}
+
+void print_firsts( ) {
+  cout << "*FIRST\n";
+  for( auto& non_terminal : non_terminals ) {
+    cout << non_terminal << " = { ";
+    bool ok = false;
+    for( auto& symbol : firsts[ non_terminal ] ) {
+      if( ok )
+        cout << ", ";
+      cout << symbol;
+      ok = true;
+    }
+    cout << " }\n";
+  }
+}
+
+void print_follows( ) {
+  cout << "*FOLLOWS\n";
+  for( auto& non_terminal : non_terminals ) {
+    cout << non_terminal << " = { ";
+    bool ok = false;
+    for( auto& symbol : follows[ non_terminal ] ) {
+      if( ok )
+        cout << ", ";
+      cout << symbol;
+      ok = true;
+    }
+    cout << " }\n";
+  }
+}
+
+void print_rule( string non_terminal, vector< string > rule ) {
+  cout << non_terminal << " ->";
+  for( auto& symbol : rule )
+    cout << " " << symbol;
+  cout << "\n";
+}
+
+void print_predictions( ) {
+  cout << "*PREDICTIONS\n";
+  for( auto& non_terminal : non_terminals ) {
+    for( int i = 0; i < int( rules[ non_terminal ].size( ) ); i++ ) {
+      auto& rule = rules[ non_terminal ][ i ];
+      print_rule( non_terminal, rule );
+      cout << "\t{ ";
+      bool ok = false;
+      for( auto& symbol : predictions[ non_terminal ][ i ] ) {
+        if( ok )
+          cout << ", ";
+        cout << symbol;
+        ok = true;
+      }
+      cout << " }\n";
+    }
+  }
 }

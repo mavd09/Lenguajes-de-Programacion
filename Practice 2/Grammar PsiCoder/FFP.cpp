@@ -14,6 +14,7 @@ typedef long double         lf;
 typedef pair< int, int >    pii;
 typedef vector< int >       vi;
 typedef vector< vi >        vvi;
+typedef pair< int, string > is;
 
 const int MAX = int( 1e7 );
 const int MOD = int( 1e9+7 );
@@ -27,6 +28,9 @@ set< string > terminals, non_terminals;
 map< string, set< string > > firsts, follows;
 map< string, vector< set< string > > > predictions;
 
+map< string, is > token_symbol;
+
+void initialize( );
 void print_firsts( );
 void print_follows( );
 void print_predictions( );
@@ -160,13 +164,15 @@ void compute_predictions( ) {
   }
 }
 
-void generateFunctions( ) {
+void generate_functions( ) {
   for( auto& non_terminal : non_terminals ) {
+    set< is > expected_tokens;
     cout << "void " << non_terminal << "( ) {\n";
     for( int i = 0; i < int( rules[ non_terminal ].size( ) ); i++ ) {
       bool fst = true;
       cout << "\tif(";
       for( auto& p : predictions[ non_terminal ][ i ] ) {
+        expected_tokens.insert( token_symbol[ p ] );
         if( !fst )
           cout << " ||";
         cout << " token == \"" << p << "\"";
@@ -188,7 +194,17 @@ void generateFunctions( ) {
       cout << "\t\treturn ;\n";
       cout << "\t}\n";
     }
-    cout << "\tcout << \"Error " << non_terminal << " \\n\";\n";
+    cout << "\tcout << \"<\" << row << \",\" << col << \"> Error sintactico: se encontro: \\\"\" << token << \"\\\"; se esperaba:";
+    bool fst = true;
+    for( auto& e : expected_tokens ) {
+      if( !fst )
+        cout << ",";
+      else
+        fst = false;
+      cout << " \\\"" << e.SE << "\\\"";
+    }
+    cout << ".\\n\";\n";
+//    cout << "\tcout << \"Error " << non_terminal << " \\n\";\n";
     cout << "\texit( 0 );\n";
     cout << "}\n";
   }
@@ -217,6 +233,8 @@ int main( ) {
   ios_base::sync_with_stdio( 0 );
   cin.tie( 0 ); cout.tie( 0 );
 
+  initialize( );
+
   read_grammar( );
 
   compute_firsts( );
@@ -232,7 +250,7 @@ int main( ) {
   ifstream fin( "C:\\Users\\Alejandro\\Documents\\Universidad\\Lenguajes de Programaci\ón\\Practice 2\\Predictive parser PsiCoder\\template.cpp" );
   string line;
   for( int l = 1; getline( fin, line ); l++ ) {
-    if( l == 60 ) {
+    if( line == "void initialize( );" ) {
       for( auto& non_terminal : non_terminals ) {
         cout << "void " << non_terminal << "( );\n";
       }
@@ -241,7 +259,7 @@ int main( ) {
   }
   fin.close( );
 
-  generateFunctions( );
+  generate_functions( );
 
   return 0;
 }
@@ -300,4 +318,67 @@ void print_predictions( ) {
       cout << " }\n";
     }
   }
+}
+
+void initialize( ) {
+  token_symbol["tk_mas"] = is(0, "+");
+  token_symbol["tk_menos"] = is(1, "-");
+  token_symbol["tk_mult"] = is(2, "*");
+  token_symbol["tk_div"] = is(3, "/");
+  token_symbol["tk_mod"] = is(4, "%");
+  token_symbol["tk_asig"] = is(5, "=");
+  token_symbol["tk_menor"] = is(6, "<");
+  token_symbol["tk_mayor"] = is(7, ">");
+  token_symbol["tk_menor_igual"] = is(8, "<=");
+  token_symbol["tk_mayor_igual"] = is(9, ">=");
+  token_symbol["tk_igual"] = is(10, "==");
+  token_symbol["tk_y"] = is(11, "&&");
+  token_symbol["tk_o"] = is(12, "||");
+  token_symbol["tk_dif"] = is(13, "!=");
+  token_symbol["tk_neg"] = is(14, "!");
+  token_symbol["tk_dosp"] = is(15, ":");
+  token_symbol["tk_comilla_sen"] = is(16, "'");
+  token_symbol["tk_comilla_dob"] = is(17, "\"");
+  token_symbol["tk_pyc"] = is(18, ";");
+  token_symbol["tk_coma"] = is(19, ",");
+  token_symbol["tk_punto"] = is(20, ".");
+  token_symbol["tk_par_izq"] = is(21, "(");
+  token_symbol["tk_par_der"] = is(22, ")");
+  token_symbol["id"] = is(23, "identificador");
+  token_symbol["tk_entero"] = is(24, "valor_entero");
+  token_symbol["tk_real"] = is(25, "valor_real");
+  token_symbol["tk_caracter"] = is(26, "valor_caracter");
+  token_symbol["tk_cadena"] = is(27, "valor_cadena");
+  token_symbol["funcion_principal"] = is(28, "funcion_principal");
+  token_symbol["fin_principal"] = is(29, "fin_principal");
+  token_symbol["leer"] = is(30, "leer");
+  token_symbol["imprimir"] = is(31, "imprimir");
+  token_symbol["booleano"] = is(32, "booleano");
+  token_symbol["caracter"] = is(33, "caracter");
+  token_symbol["entero"] = is(34, "entero");
+  token_symbol["real"] = is(35, "real");
+  token_symbol["cadena"] = is(36, "cadena");
+  token_symbol["si"] = is(37, "si");
+  token_symbol["entonces"] = is(38, "entonces");
+  token_symbol["fin_si"] = is(39, "fin_si");
+  token_symbol["si_no"] = is(40, "si_no");
+  token_symbol["mientras"] = is(41, "mientras");
+  token_symbol["hacer"] = is(42, "hacer");
+  token_symbol["fin_mientras"] = is(43, "fin_mientras");
+  token_symbol["para"] = is(44, "para");
+  token_symbol["fin_para"] = is(45, "fin_para");
+  token_symbol["seleccionar"] = is(46, "seleccionar");
+  token_symbol["entre"] = is(47, "entre");
+  token_symbol["caso"] = is(48, "caso");
+  token_symbol["romper"] = is(49, "romper");
+  token_symbol["defecto"] = is(50, "defecto");
+  token_symbol["fin_seleccionar"] = is(51, "fin_seleccionar");
+  token_symbol["estructura"] = is(52, "estructura");
+  token_symbol["fin_estructura"] = is(53, "fin_estructura");
+  token_symbol["funcion"] = is(54, "funcion");
+  token_symbol["fin_funcion"] = is(55, "fin_funcion");
+  token_symbol["retornar"] = is(56, "retornar");
+  token_symbol["falso"] = is(57, "falso");
+  token_symbol["verdadero"] = is(58, "verdadero");
+  token_symbol["$"] = is(59, "EOF");
 }
